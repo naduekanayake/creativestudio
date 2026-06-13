@@ -1,36 +1,36 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta name="csrf-token" content="{{ csrf_token() }}">
+<html lang="en" 
+      x-data="{ dark: true, sidebarOpen: true }" 
+      :class="{ 'dark': dark }"
+      class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>{{ config('app.name', 'CreativeStudio') }} - @yield('title', 'Dashboard')</title>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+</head>
+<body class="bg-dark-900 text-white font-sans antialiased" x-cloak>
 
-        <title>{{ config('app.name', 'Laravel') }}</title>
+    <div class="flex h-screen overflow-hidden">
 
-        <!-- Fonts -->
-        <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+        {{-- Sidebar --}}
+        @include('layouts.sidebar')
 
-        <!-- Scripts -->
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
-    </head>
-    <body class="font-sans antialiased">
-        <div class="min-h-screen bg-gray-100">
-            @include('layouts.navigation')
+        {{-- Main Content --}}
+        <div class="flex-1 flex flex-col overflow-hidden">
 
-            <!-- Page Heading -->
-            @isset($header)
-                <header class="bg-white shadow">
-                    <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-                        {{ $header }}
-                    </div>
-                </header>
-            @endisset
+            {{-- Top Bar --}}
+            @include('layouts.topbar')
 
-            <!-- Page Content -->
-            <main>
-                {{ $slot }}
+            {{-- Page Content --}}
+            <main class="flex-1 overflow-y-auto bg-dark-900 p-6">
+                @yield('content')
             </main>
+
         </div>
-    </body>
+    </div>
+
+</body>
 </html>
