@@ -23,10 +23,9 @@
     <nav class="flex-1 overflow-y-auto py-3 px-2 space-y-0.5">
 
         <x-nav-item href="{{ route('dashboard') }}" icon="home" label="Dashboard"/>
-        <x-nav-item href="#" icon="users" label="Clients"/>
+        <x-nav-item href="{{ route('clients.index') }}" icon="users" label="Clients"/>
         <x-nav-item href="#" icon="briefcase" label="Projects"/>
-        <x-nav-item href="#" icon="package" label="Packages"/>
-
+        <x-nav-item href="{{ route('packages.index') }}" icon="package" label="Packages"/>
         {{-- Quotations --}}
         <x-nav-dropdown label="Quotations" icon="document">
             <x-nav-sub-item href="#" label="All Quotations"/>

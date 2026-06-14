@@ -1,5 +1,5 @@
 @php
-    $active = request()->url() === $href || request()->is(ltrim(parse_url($href, PHP_URL_PATH), '/'));
+    $active = request()->url() === $href;
 @endphp
 
 <a href="{{ $href }}"
@@ -7,8 +7,11 @@
           {{ $active 
              ? 'bg-primary text-white' 
              : 'text-gray-400 hover:text-white hover:bg-dark-700' }}">
+
+    {{-- Icon --}}
     <span class="w-4 h-4 flex-shrink-0">
         @include('components.icons.' . $icon)
     </span>
+
     <span>{{ $label }}</span>
 </a>

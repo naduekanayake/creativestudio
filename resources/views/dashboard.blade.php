@@ -17,12 +17,7 @@
             </svg>
             <span class="text-gray-300 text-sm">{{ now()->format('d M Y') }}</span>
         </div>
-        <button class="bg-primary hover:bg-primary-hover text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors flex items-center gap-2">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-            </svg>
-            New Job
-        </button>
+        
     </div>
 </div>
 
