@@ -26,10 +26,11 @@
         <x-nav-item href="{{ route('clients.index') }}" icon="users" label="Clients"/>
         <x-nav-item href="#" icon="briefcase" label="Projects"/>
         <x-nav-item href="{{ route('packages.index') }}" icon="package" label="Packages"/>
+
         {{-- Quotations --}}
         <x-nav-dropdown label="Quotations" icon="document">
-            <x-nav-sub-item href="#" label="All Quotations"/>
-            <x-nav-sub-item href="#" label="Create Quotation"/>
+            <x-nav-sub-item href="{{ route('quotations.index') }}" label="All Quotations"/>
+            <x-nav-sub-item href="{{ route('quotations.create') }}" label="Create Quotation"/>
         </x-nav-dropdown>
 
         {{-- Invoices --}}
