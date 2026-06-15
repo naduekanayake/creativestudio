@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Create Quotation')
+@section('title', 'Edit Quotation')
 
 @section('content')
 
@@ -12,8 +12,8 @@
         {{-- Header --}}
         <div class="flex items-center justify-between mb-2">
             <div>
-                <h1 class="text-2xl font-bold" :class="dark ? 'text-white' : 'text-gray-900'">Create Quotation</h1>
-                <p class="text-gray-400 text-sm mt-0.5">Quotations &gt; Create Quotation</p>
+                <h1 class="text-2xl font-bold" :class="dark ? 'text-white' : 'text-gray-900'">Edit Quotation</h1>
+                <p class="text-gray-400 text-sm mt-0.5">Quotations &gt; Edit {{ $quotation->quotation_number }}</p>
             </div>
             <div class="flex gap-2">
                 <button type="button" @click="submitForm('Draft')"
@@ -65,14 +65,7 @@
                             :style="dark ? 'background:#252840;color:#fff;border:1px solid #2d3154' : 'background:#f9fafb;color:#111827;border:1px solid #e5e7eb'">
                         <option value="">Select client...</option>
                         @foreach($clients as $client)
-                        <option value="{{ $client->id }}"
-                                data-name="{{ $client->name }}"
-                                data-phone="{{ $client->phone }}"
-                                data-email="{{ $client->email }}"
-                                data-address="{{ $client->address }}"
-                                data-city="{{ $client->city }}">
-                            {{ $client->name }}
-                        </option>
+                        <option value="{{ $client->id }}">{{ $client->name }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -192,10 +185,7 @@
                 <textarea x-model="form.terms" rows="5"
                           class="w-full text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-primary"
                           :style="dark ? 'background:#252840;color:#fff;border:1px solid #2d3154' : 'background:#f9fafb;color:#111827;border:1px solid #e5e7eb'"
-                          placeholder="A booking is confirmed only after 50% advance payment.
-Cancellations within 7 days of the event are non-refundable.
-Raw files will not be provided.
-Delivery time: 4-6 weeks after the event."></textarea>
+                          placeholder="A booking is confirmed only after 50% advance payment."></textarea>
             </div>
         </div>
 
@@ -254,7 +244,7 @@ Delivery time: 4-6 weeks after the event."></textarea>
             </button>
             <button type="button" @click="submitForm(form.status)" x-show="step === 4"
                     class="bg-primary hover:bg-primary-hover text-white text-sm font-medium px-5 py-2 rounded-lg transition-colors ml-auto">
-                Save Quotation
+                Update Quotation
             </button>
         </div>
 
@@ -266,7 +256,6 @@ Delivery time: 4-6 weeks after the event."></textarea>
             <h3 class="font-semibold" :class="dark ? 'text-white' : 'text-gray-900'">Quotation Preview</h3>
         </div>
 
-        {{-- Preview Card --}}
         <div class="rounded-lg p-4" style="background:#0f1117">
             <div class="flex items-center justify-between mb-4">
                 <div class="flex items-center gap-2">
@@ -317,7 +306,6 @@ Delivery time: 4-6 weeks after the event."></textarea>
                 </div>
             </div>
 
-            {{-- Items Table --}}
             <table class="w-full text-xs mb-4">
                 <thead>
                     <tr class="text-gray-500" style="border-bottom:1px solid #252840">
@@ -344,7 +332,6 @@ Delivery time: 4-6 weeks after the event."></textarea>
                 </tbody>
             </table>
 
-            {{-- Totals --}}
             <div class="space-y-1 text-xs mb-4">
                 <div class="flex justify-between">
                     <span class="text-gray-400">SUB TOTAL</span>
@@ -364,7 +351,6 @@ Delivery time: 4-6 weeks after the event."></textarea>
                 </div>
             </div>
 
-            {{-- Terms --}}
             <div x-show="form.terms" class="text-xs mb-3">
                 <p class="text-gray-400 mb-1">TERMS & CONDITIONS</p>
                 <p class="text-gray-500 whitespace-pre-line" x-text="form.terms" style="font-size:10px;line-height:1.4"></p>
@@ -376,8 +362,9 @@ Delivery time: 4-6 weeks after the event."></textarea>
 </div>
 
 {{-- Form data for submission --}}
-<form id="quotationSubmitForm" method="POST" action="{{ route('quotations.store') }}" class="hidden">
+<form id="quotationSubmitForm" method="POST" action="{{ route('quotations.update', $quotation) }}" class="hidden">
     @csrf
+    @method('PUT')
     <div id="hiddenFields"></div>
 </form>
 
@@ -390,31 +377,62 @@ Delivery time: 4-6 weeks after the event."></textarea>
             'city' => $c->city,
         ];
     })->values()->toArray();
+
+    $itemsArray = $quotation->items->map(function($item) {
+        return [
+            'item_name' => $item->item_name,
+            'description' => $item->description,
+            'qty' => $item->qty,
+            'unit_price' => (float) $item->unit_price,
+        ];
+    })->values()->toArray();
+
+    $pageDataArray = [
+        'clients' => $clientsArray,
+        'quotation' => [
+            'client_id' => $quotation->client_id,
+            'client_name' => $quotation->client->name,
+            'client_address' => $quotation->client->address,
+            'client_city' => $quotation->client->city,
+            'project_event' => $quotation->project_event,
+            'quotation_number' => $quotation->quotation_number,
+            'issue_date' => $quotation->issue_date->format('Y-m-d'),
+            'valid_until' => $quotation->valid_until->format('Y-m-d'),
+            'discount_percent' => (float) $quotation->discount_percent,
+            'vat_percent' => (float) $quotation->vat_percent,
+            'payment_terms' => $quotation->payment_terms,
+            'terms' => $quotation->terms,
+            'status' => $quotation->status,
+            'items' => $itemsArray,
+        ],
+    ];
 @endphp
 
-<script type="application/json" id="clients-data">@json($clientsArray)</script>
+<script type="application/json" id="quotation-data">@json($pageDataArray)</script>
 
 <script>
-    var clientsData = JSON.parse(document.getElementById('clients-data').textContent);
+    var pageData = JSON.parse(document.getElementById('quotation-data').textContent);
+    var clientsData = pageData.clients;
+    var initialQuotation = pageData.quotation;
 
     function quotationForm() {
         return {
             step: 1,
             form: {
-                client_id: '',
-                client_name: '',
-                client_address: '',
-                client_city: '',
-                project_event: '',
-                quotation_number: '{{ $nextNumber }}',
-                issue_date: '{{ date("Y-m-d") }}',
-                valid_until: '{{ date("Y-m-d", strtotime("+14 days")) }}',
-                discount_percent: 10,
-                vat_percent: 18,
-                payment_terms: '50% Advance, Balance Before Delivery',
-                terms: 'A booking is confirmed only after 50% advance payment.\nCancellations within 7 days of the event are non-refundable.\nRaw files will not be provided.\nDelivery time: 4-6 weeks after the event.',
-                status: 'Draft',
-                items: [
+                client_id: String(initialQuotation.client_id),
+                client_name: initialQuotation.client_name || '',
+                client_address: initialQuotation.client_address || '',
+                client_city: initialQuotation.client_city || '',
+                project_event: initialQuotation.project_event || '',
+                quotation_number: initialQuotation.quotation_number,
+                issue_date: initialQuotation.issue_date,
+                valid_until: initialQuotation.valid_until,
+                discount_percent: initialQuotation.discount_percent,
+                vat_percent: initialQuotation.vat_percent,
+                payment_terms: initialQuotation.payment_terms || '',
+                terms: initialQuotation.terms || '',
+                status: initialQuotation.status,
+                items: initialQuotation.items.length > 0 ? initialQuotation.items : [
                     { item_name: '', description: '', qty: 1, unit_price: 0 }
                 ]
             },

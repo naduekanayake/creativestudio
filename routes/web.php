@@ -10,4 +10,5 @@ Route::get('/', fn() => redirect()->route('dashboard'));
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 Route::resource('clients', ClientController::class);
 Route::resource('packages', PackageController::class);
-Route::resource('quotations', QuotationController::class)->except(['edit', 'update']);
+Route::resource('quotations', QuotationController::class);
+Route::patch('/quotations/{quotation}/status', [QuotationController::class, 'updateStatus'])->name('quotations.update-status');
