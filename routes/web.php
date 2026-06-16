@@ -11,6 +11,7 @@ use App\Http\Controllers\JobController;
 use App\Http\Controllers\DeliverableController;
 use App\Http\Controllers\CalendarController;
 use App\Http\Controllers\WhatsAppController;
+use App\Http\Controllers\EmailSharingController;
 
 Route::get('/', fn() => redirect()->route('dashboard'));
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -37,3 +38,5 @@ Route::get('/calendar', [CalendarController::class, 'index'])->name('calendar');
 Route::get('/calendar/events', [CalendarController::class, 'events'])->name('calendar.events');
 
 Route::get('/whatsapp', [WhatsAppController::class, 'index'])->name('whatsapp');
+
+Route::get('/email-sharing', [EmailSharingController::class, 'index'])->name('email-sharing');
