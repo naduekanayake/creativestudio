@@ -33,10 +33,10 @@
             <x-nav-sub-item href="{{ route('quotations.create') }}" label="Create Quotation"/>
         </x-nav-dropdown>
 
-        {{-- Invoices --}}
+       {{-- Invoices --}}
         <x-nav-dropdown label="Invoices" icon="receipt">
-            <x-nav-sub-item href="#" label="All Invoices"/>
-            <x-nav-sub-item href="#" label="Create Invoice"/>
+        <x-nav-sub-item href="{{ route('invoices.index') }}" label="All Invoices"/>
+        <x-nav-sub-item href="{{ route('invoices.create') }}" label="Create Invoice"/>
         </x-nav-dropdown>
 
         <x-nav-item href="#" icon="credit-card" label="Payments"/>
