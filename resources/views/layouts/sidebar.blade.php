@@ -43,7 +43,7 @@
         <x-nav-item href="{{ route('jobs.index') }}" icon="kanban" label="Job Management"/>
         <x-nav-item href="{{ route('deliverables.index') }}" icon="truck" label="Deliverables"/>
         <x-nav-item href="{{ route('calendar') }}" icon="calendar" label="Calendar"/>
-        <x-nav-item href="#" icon="whatsapp" label="WhatsApp"/>
+        <x-nav-item href="{{ route('whatsapp') }}" icon="whatsapp" label="WhatsApp"/>
         <x-nav-item href="#" icon="mail" label="Email Sharing"/>
         <x-nav-item href="#" icon="bell" label="Reminders"/>
 
