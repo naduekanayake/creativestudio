@@ -1,4 +1,4 @@
-<aside class="w-44 bg-sidebar flex flex-col flex-shrink-0 h-full" 
+<aside class="w-44 bg-sidebar flex flex-col flex-shrink-0 h-full"
        x-show="sidebarOpen">
 
     {{-- Logo --}}
@@ -6,9 +6,9 @@
         <div class="flex items-center gap-2">
             <div class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
                 <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                           d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                           d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
                 </svg>
             </div>
@@ -24,7 +24,6 @@
 
         <x-nav-item href="{{ route('dashboard') }}" icon="home" label="Dashboard"/>
         <x-nav-item href="{{ route('clients.index') }}" icon="users" label="Clients"/>
-        <x-nav-item href="#" icon="briefcase" label="Projects"/>
         <x-nav-item href="{{ route('packages.index') }}" icon="package" label="Packages"/>
 
         {{-- Quotations --}}
@@ -33,10 +32,10 @@
             <x-nav-sub-item href="{{ route('quotations.create') }}" label="Create Quotation"/>
         </x-nav-dropdown>
 
-       {{-- Invoices --}}
+        {{-- Invoices --}}
         <x-nav-dropdown label="Invoices" icon="receipt">
-        <x-nav-sub-item href="{{ route('invoices.index') }}" label="All Invoices"/>
-        <x-nav-sub-item href="{{ route('invoices.create') }}" label="Create Invoice"/>
+            <x-nav-sub-item href="{{ route('invoices.index') }}" label="All Invoices"/>
+            <x-nav-sub-item href="{{ route('invoices.create') }}" label="Create Invoice"/>
         </x-nav-dropdown>
 
         <x-nav-item href="{{ route('payments.index') }}" icon="credit-card" label="Payments"/>
@@ -49,8 +48,8 @@
 
         {{-- Reports --}}
         <x-nav-dropdown label="Reports" icon="chart">
-            <x-nav-sub-item href="#" label="Overview"/>
-            <x-nav-sub-item href="#" label="Financial"/>
+            <x-nav-sub-item href="{{ route('reports.index') }}" label="Overview"/>
+            <x-nav-sub-item href="{{ route('reports.financial') }}" label="Financial"/>
         </x-nav-dropdown>
 
         <x-nav-item href="#" icon="activity" label="Activity Log"/>
