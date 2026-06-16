@@ -12,12 +12,12 @@ use App\Http\Controllers\DeliverableController;
 use App\Http\Controllers\CalendarController;
 use App\Http\Controllers\WhatsAppController;
 use App\Http\Controllers\EmailSharingController;
+use App\Http\Controllers\ReminderController;
 
 Route::get('/', fn() => redirect()->route('dashboard'));
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
 Route::resource('clients', ClientController::class);
-
 Route::resource('packages', PackageController::class);
 
 Route::resource('quotations', QuotationController::class);
@@ -38,5 +38,7 @@ Route::get('/calendar', [CalendarController::class, 'index'])->name('calendar');
 Route::get('/calendar/events', [CalendarController::class, 'events'])->name('calendar.events');
 
 Route::get('/whatsapp', [WhatsAppController::class, 'index'])->name('whatsapp');
-
 Route::get('/email-sharing', [EmailSharingController::class, 'index'])->name('email-sharing');
+
+Route::resource('reminders', ReminderController::class)->except(['show']);
+Route::patch('/reminders/{reminder}/status', [ReminderController::class, 'updateStatus'])->name('reminders.update-status');
