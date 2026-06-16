@@ -7,6 +7,7 @@ use App\Http\Controllers\PackageController;
 use App\Http\Controllers\QuotationController;
 use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\JobController;
 
 Route::get('/', fn() => redirect()->route('dashboard'));
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -16,4 +17,6 @@ Route::resource('quotations', QuotationController::class);
 Route::patch('/quotations/{quotation}/status', [QuotationController::class, 'updateStatus'])->name('quotations.update-status');
 Route::resource('invoices', InvoiceController::class);
 Route::patch('/invoices/{invoice}/status', [InvoiceController::class, 'updateStatus'])->name('invoices.update-status');
-Route::resource('payments', PaymentController::class)->only(['index', 'create', 'store', 'show', 'edit', 'update', 'destroy']);
+Route::resource('payments', PaymentController::class);
+Route::resource('jobs', JobController::class);
+Route::patch('/jobs/{job}/status', [JobController::class, 'updateStatus'])->name('jobs.update-status');

@@ -40,7 +40,7 @@
         </x-nav-dropdown>
 
         <x-nav-item href="{{ route('payments.index') }}" icon="credit-card" label="Payments"/>
-        <x-nav-item href="#" icon="kanban" label="Job Management"/>
+        <x-nav-item href="{{ route('jobs.index') }}" icon="kanban" label="Job Management"/>
         <x-nav-item href="#" icon="truck" label="Deliverables"/>
         <x-nav-item href="#" icon="calendar" label="Calendar"/>
         <x-nav-item href="#" icon="whatsapp" label="WhatsApp"/>
