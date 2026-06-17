@@ -16,10 +16,12 @@ use App\Http\Controllers\ReminderController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\ExpenseController;
 
 Route::get('/', fn() => redirect()->route('login'));
 
 Route::middleware('auth')->group(function () {
+
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     Route::resource('clients', ClientController::class);
@@ -53,11 +55,19 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/activity-log', [ActivityLogController::class, 'index'])->name('activity-log');
 
-    // Super Admin only
+    Route::resource('expenses', ExpenseController::class);
+
+    // Profile routes (Breeze compatibility)
+    Route::get('/profile', fn() => redirect()->route('dashboard'))->name('profile.edit');
+    Route::patch('/profile', fn() => redirect()->route('dashboard'))->name('profile.update');
+    Route::delete('/profile', fn() => redirect()->route('dashboard'))->name('profile.destroy');
+
+    // Admin only
     Route::middleware('role:super_admin,admin')->group(function () {
         Route::resource('users', UserController::class)->except(['show']);
         Route::patch('/users/{user}/toggle-status', [UserController::class, 'toggleStatus'])->name('users.toggle-status');
     });
+
 });
 
 require __DIR__.'/auth.php';

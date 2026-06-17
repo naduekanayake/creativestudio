@@ -1,76 +1,58 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" x-data="{ dark: localStorage.getItem('dark') === 'true', sidebarOpen: true }"
+      x-init="$watch('dark', val => localStorage.setItem('dark', val))"
+      :class="dark ? 'dark' : ''">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ config('app.name', 'CreativeStudio') }} - @yield('title', 'Dashboard')</title>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="csrf-token" content="{{ csrf_token() }}"/>
+    <title>@yield('title', 'CreativeStudio') — CreativeStudio POS</title>
 
     {{-- Tailwind CDN --}}
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
-            darkMode: 'class',
             theme: {
                 extend: {
                     colors: {
-                        primary: { DEFAULT: '#7C3AED', hover: '#6D28D9' },
-                        dark: {
-                            900: '#0f1117',
-                            800: '#1a1d2e',
-                            700: '#252840',
-                            600: '#2d3154',
-                        },
-                        sidebar: '#13152b',
+                        primary: '#7C3AED',
+                        'primary-hover': '#6D28D9',
+                        sidebar: '#13151f',
+                        'dark-700': '#1e2130',
+                        'dark-600': '#252840',
                     }
                 }
             }
         }
     </script>
 
-    {{-- Alpine.js --}}
+    {{-- Alpine.js CDN --}}
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
-    {{-- ApexCharts --}}
-    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-
-    {{-- Google Fonts --}}
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
     <style>
-        body { font-family: 'Inter', sans-serif; }
         [x-cloak] { display: none !important; }
-        * { scrollbar-width: thin; scrollbar-color: #7C3AED #1a1d2e; }
+        body { background: #0f1117; }
+        .bg-sidebar { background: #13151f; }
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
+        ::-webkit-scrollbar-track { background: #1a1d2e; }
+        ::-webkit-scrollbar-thumb { background: #7C3AED; border-radius: 2px; }
     </style>
 </head>
-
-<body x-data="{
-        dark: localStorage.getItem('theme') !== 'light',
-        sidebarOpen: true,
-        notifOpen: false,
-        profileOpen: false,
-        init() {
-            this.$watch('dark', val => {
-                localStorage.setItem('theme', val ? 'dark' : 'light');
-                if (val) {
-                    document.documentElement.classList.add('dark');
-                } else {
-                    document.documentElement.classList.remove('dark');
-                }
-            });
-            if (this.dark) {
-                document.documentElement.classList.add('dark');
-            }
-        }
-     }"
-     :class="dark ? 'bg-dark-900 text-white' : 'bg-gray-100 text-gray-900'"
-     class="antialiased">
+<body class="min-h-screen" :class="dark ? 'bg-dark-900' : 'bg-gray-50'" style="background:#0f1117">
 
 <div class="flex h-screen overflow-hidden">
+
+    {{-- Sidebar --}}
     @include('layouts.sidebar')
+
+    {{-- Main Content --}}
     <div class="flex-1 flex flex-col overflow-hidden">
+
+        {{-- Topbar --}}
         @include('layouts.topbar')
-        <main :class="dark ? 'bg-dark-900' : 'bg-gray-100'" class="flex-1 overflow-y-auto p-6">
+
+        {{-- Page Content --}}
+        <main class="flex-1 overflow-y-auto p-6" :style="dark ? 'background:#0f1117' : 'background:#f9fafb'">
             @yield('content')
         </main>
     </div>

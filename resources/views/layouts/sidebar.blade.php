@@ -1,10 +1,11 @@
-<aside class="w-44 bg-sidebar flex flex-col flex-shrink-0 h-full"
-       x-show="sidebarOpen">
+<aside class="w-44 flex flex-col flex-shrink-0 h-full"
+       x-show="sidebarOpen"
+       :style="dark ? 'background:#13151f' : 'background:#ffffff;border-right:1px solid #e5e7eb'">
 
     {{-- Logo --}}
-    <div class="p-4 border-b border-dark-700">
+    <div class="p-4" :style="dark ? 'border-bottom:1px solid #1e2130' : 'border-bottom:1px solid #e5e7eb'">
         <div class="flex items-center gap-2">
-            <div class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+            <div class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center flex-shrink-0">
                 <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                           d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
@@ -13,7 +14,7 @@
                 </svg>
             </div>
             <div>
-                <p class="text-white font-bold text-xs leading-tight">CreativeStudio</p>
+                <p class="font-bold text-xs leading-tight" :class="dark ? 'text-white' : 'text-gray-900'">CreativeStudio</p>
                 <p class="text-gray-400 text-xs">Photography & Films</p>
             </div>
         </div>
@@ -53,10 +54,9 @@
         </x-nav-dropdown>
 
         <x-nav-item href="{{ route('activity-log') }}" icon="activity" label="Activity Log"/>
-        <x-nav-item href="#" icon="dollar" label="Expenses"/>
+        <x-nav-item href="{{ route('expenses.index') }}" icon="dollar" label="Expenses"/>
         <x-nav-item href="#" icon="file-text" label="Contracts"/>
 
-        {{-- Admin Only --}}
         @if(auth()->check() && auth()->user()->isAdmin())
         <x-nav-item href="{{ route('users.index') }}" icon="users" label="Users"/>
         @endif
@@ -66,15 +66,15 @@
     </nav>
 
     {{-- User Profile --}}
-    <div class="p-3 border-t border-dark-700">
+    <div class="p-3" :style="dark ? 'border-top:1px solid #1e2130' : 'border-top:1px solid #e5e7eb'">
         <div class="flex items-center gap-2">
-            <div class="w-7 h-7 bg-primary rounded-full flex items-center justify-center">
+            <div class="w-7 h-7 bg-primary rounded-full flex items-center justify-center flex-shrink-0">
                 <span class="text-white text-xs font-bold">
                     {{ auth()->check() ? substr(auth()->user()->name, 0, 1) : 'U' }}
                 </span>
             </div>
             <div class="flex-1 min-w-0">
-                <p class="text-white text-xs font-medium truncate">
+                <p class="text-xs font-medium truncate" :class="dark ? 'text-white' : 'text-gray-900'">
                     {{ auth()->check() ? auth()->user()->name : 'User' }}
                 </p>
                 <p class="text-gray-400 text-xs truncate">
@@ -84,7 +84,7 @@
             {{-- Logout --}}
             <form method="POST" action="{{ route('logout') }}">
                 @csrf
-                <button type="submit" class="text-gray-500 hover:text-red-400 transition-colors" title="Logout">
+                <button type="submit" class="text-gray-400 hover:text-red-400 transition-colors" title="Logout">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
                     </svg>
