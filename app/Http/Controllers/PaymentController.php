@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Payment;
 use App\Models\Client;
 use App\Models\Invoice;
+use App\Models\ActivityLog;
 use Illuminate\Http\Request;
 
 class PaymentController extends Controller
@@ -12,14 +13,12 @@ class PaymentController extends Controller
     public function index()
     {
         $payments = Payment::with('client', 'invoice')->latest()->paginate(15);
-
         $stats = [
             'total'        => Payment::count(),
             'completed'    => Payment::where('status', 'Completed')->count(),
             'pending'      => Payment::where('status', 'Pending')->count(),
             'total_amount' => Payment::where('status', 'Completed')->sum('amount'),
         ];
-
         return view('payments.index', compact('payments', 'stats'));
     }
 
@@ -27,19 +26,15 @@ class PaymentController extends Controller
     {
         $clients = Client::orderBy('name')->get();
         $invoices = collect();
-
         if ($request->has('invoice_id')) {
             $invoice = Invoice::with('client')->find($request->invoice_id);
             if ($invoice) {
                 $invoices = Invoice::where('client_id', $invoice->client_id)
-                    ->whereIn('payment_status', ['Unpaid', 'Partial'])
-                    ->get();
+                    ->whereIn('payment_status', ['Unpaid', 'Partial'])->get();
             }
         }
-
         $nextNumber = 'PAY-' . date('Y') . '-' . str_pad((Payment::count() + 1), 4, '0', STR_PAD_LEFT);
         $selectedInvoiceId = $request->invoice_id ?? null;
-
         return view('payments.create', compact('clients', 'invoices', 'nextNumber', 'selectedInvoiceId'));
     }
 
@@ -62,6 +57,10 @@ class PaymentController extends Controller
             $this->recalculateInvoice($payment->invoice_id);
         }
 
+        ActivityLog::log('created', 'Payment', $payment->id, $payment->payment_number,
+            'Payment recorded: Rs. ' . number_format($payment->amount) . ' from ' . $payment->client->name,
+            'credit-card', 'green');
+
         return redirect()->route('payments.index')
             ->with('success', 'Payment recorded successfully!');
     }
@@ -76,8 +75,7 @@ class PaymentController extends Controller
     {
         $clients = Client::orderBy('name')->get();
         $invoices = Invoice::where('client_id', $payment->client_id)
-            ->whereIn('payment_status', ['Unpaid', 'Partial'])
-            ->get();
+            ->whereIn('payment_status', ['Unpaid', 'Partial'])->get();
         return view('payments.edit', compact('payment', 'clients', 'invoices'));
     }
 
@@ -96,17 +94,15 @@ class PaymentController extends Controller
         $oldInvoiceId = $payment->invoice_id;
         $payment->update($validated);
 
-        // Recalculate old invoice
-        if ($oldInvoiceId) {
-            $this->recalculateInvoice($oldInvoiceId);
-        }
-
-        // Recalculate new invoice if changed
+        if ($oldInvoiceId) $this->recalculateInvoice($oldInvoiceId);
         if ($payment->invoice_id && $payment->invoice_id != $oldInvoiceId) {
             $this->recalculateInvoice($payment->invoice_id);
         } elseif ($payment->invoice_id) {
             $this->recalculateInvoice($payment->invoice_id);
         }
+
+        ActivityLog::log('updated', 'Payment', $payment->id, $payment->payment_number,
+            'Payment updated: ' . $payment->payment_number, 'credit-card', 'orange');
 
         return redirect()->route('payments.show', $payment)
             ->with('success', 'Payment updated successfully!');
@@ -115,11 +111,13 @@ class PaymentController extends Controller
     public function destroy(Payment $payment)
     {
         $invoiceId = $payment->invoice_id;
+        $number = $payment->payment_number;
         $payment->delete();
 
-        if ($invoiceId) {
-            $this->recalculateInvoice($invoiceId);
-        }
+        if ($invoiceId) $this->recalculateInvoice($invoiceId);
+
+        ActivityLog::log('deleted', 'Payment', null, $number,
+            'Payment deleted: ' . $number, 'credit-card', 'red');
 
         return redirect()->route('payments.index')
             ->with('success', 'Payment deleted successfully!');
@@ -129,15 +127,11 @@ class PaymentController extends Controller
     {
         $invoice = Invoice::find($invoiceId);
         if (!$invoice) return;
-
         $totalPaid = Payment::where('invoice_id', $invoiceId)
-            ->where('status', 'Completed')
-            ->sum('amount');
-
+            ->where('status', 'Completed')->sum('amount');
         $invoice->paid_amount = $totalPaid;
         $invoice->payment_status = $totalPaid >= $invoice->total_amount
-            ? 'Paid'
-            : ($totalPaid > 0 ? 'Partial' : 'Unpaid');
+            ? 'Paid' : ($totalPaid > 0 ? 'Partial' : 'Unpaid');
         $invoice->save();
     }
 }

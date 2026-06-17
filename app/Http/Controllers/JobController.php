@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Job;
 use App\Models\Client;
 use App\Models\Quotation;
+use App\Models\ActivityLog;
 use Illuminate\Http\Request;
 
 class JobController extends Controller
@@ -23,10 +24,10 @@ class JobController extends Controller
         ];
 
         $stats = [
-            'total'       => $jobs->count(),
-            'active'      => $jobs->whereIn('status', ['Confirmed', 'In Progress', 'Editing'])->count(),
-            'completed'   => $jobs->where('status', 'Completed')->count(),
-            'inquiry'     => $jobs->where('status', 'Inquiry')->count(),
+            'total'     => $jobs->count(),
+            'active'    => $jobs->whereIn('status', ['Confirmed', 'In Progress', 'Editing'])->count(),
+            'completed' => $jobs->where('status', 'Completed')->count(),
+            'inquiry'   => $jobs->where('status', 'Inquiry')->count(),
         ];
 
         return view('jobs.index', compact('kanban', 'stats'));
@@ -35,7 +36,8 @@ class JobController extends Controller
     public function create()
     {
         $clients = Client::orderBy('name')->get();
-        $quotations = Quotation::with('client')->where('status', 'Accepted')->orderBy('created_at', 'desc')->get();
+        $quotations = Quotation::with('client')->where('status', 'Accepted')
+            ->orderBy('created_at', 'desc')->get();
         $nextNumber = 'JOB-' . date('Y') . '-' . str_pad((Job::count() + 1), 4, '0', STR_PAD_LEFT);
         return view('jobs.create', compact('clients', 'quotations', 'nextNumber'));
     }
@@ -58,7 +60,11 @@ class JobController extends Controller
             'notes'          => 'nullable|string',
         ]);
 
-        Job::create($validated);
+        $job = Job::create($validated);
+
+        ActivityLog::log('created', 'Job', $job->id, $job->job_number,
+            'New job created: ' . $job->title . ' for ' . $job->client->name,
+            'kanban', 'pink');
 
         return redirect()->route('jobs.index')
             ->with('success', 'Job created successfully!');
@@ -96,6 +102,9 @@ class JobController extends Controller
 
         $job->update($validated);
 
+        ActivityLog::log('updated', 'Job', $job->id, $job->job_number,
+            'Job updated: ' . $job->title, 'kanban', 'orange');
+
         return redirect()->route('jobs.show', $job)
             ->with('success', 'Job updated successfully!');
     }
@@ -108,12 +117,22 @@ class JobController extends Controller
 
         $job->update(['status' => $request->status]);
 
+        ActivityLog::log('updated', 'Job', $job->id, $job->job_number,
+            'Job status changed to: ' . $request->status . ' - ' . $job->title,
+            'kanban', 'orange');
+
         return back()->with('success', 'Job status updated!');
     }
 
     public function destroy(Job $job)
     {
+        $title = $job->title;
+        $number = $job->job_number;
         $job->delete();
+
+        ActivityLog::log('deleted', 'Job', null, $number,
+            'Job deleted: ' . $title, 'kanban', 'red');
+
         return redirect()->route('jobs.index')
             ->with('success', 'Job deleted successfully!');
     }
