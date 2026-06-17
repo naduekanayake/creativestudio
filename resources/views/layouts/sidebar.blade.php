@@ -55,7 +55,7 @@
 
         <x-nav-item href="{{ route('activity-log') }}" icon="activity" label="Activity Log"/>
         <x-nav-item href="{{ route('expenses.index') }}" icon="dollar" label="Expenses"/>
-        <x-nav-item href="#" icon="file-text" label="Contracts"/>
+        <x-nav-item href="{{ route('contracts.index') }}" icon="file-text" label="Contracts"/>
 
         @if(auth()->check() && auth()->user()->isAdmin())
         <x-nav-item href="{{ route('users.index') }}" icon="users" label="Users"/>

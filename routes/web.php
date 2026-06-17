@@ -17,6 +17,7 @@ use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ExpenseController;
+use App\Http\Controllers\ContractController;
 
 Route::get('/', fn() => redirect()->route('login'));
 
@@ -56,6 +57,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/activity-log', [ActivityLogController::class, 'index'])->name('activity-log');
 
     Route::resource('expenses', ExpenseController::class);
+
+    Route::resource('contracts', ContractController::class);
+    Route::patch('/contracts/{contract}/status', [ContractController::class, 'updateStatus'])->name('contracts.update-status');
 
     // Profile routes (Breeze compatibility)
     Route::get('/profile', fn() => redirect()->route('dashboard'))->name('profile.edit');
