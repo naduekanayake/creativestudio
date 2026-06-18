@@ -4,6 +4,8 @@
 
 @section('content')
 
+<div x-data="packageSearch()">
+
 {{-- Header --}}
 <div class="flex items-center justify-between mb-6">
     <div>
@@ -70,9 +72,14 @@
 <div class="rounded-xl" :style="dark ? 'background:#1a1d2e;border:1px solid #252840' : 'background:#fff;border:1px solid #e5e7eb'">
     <div class="p-4 flex items-center justify-between" :style="dark ? 'border-bottom:1px solid #252840' : 'border-bottom:1px solid #e5e7eb'">
         <h3 class="font-semibold" :class="dark ? 'text-white' : 'text-gray-900'">All Packages</h3>
-        <input type="text" placeholder="Search packages..."
-               class="text-sm rounded-lg px-3 py-1.5 w-48 focus:outline-none"
-               :style="dark ? 'background:#252840;color:#d1d5db;border:1px solid #2d3154' : 'background:#f9fafb;color:#111827;border:1px solid #e5e7eb'"/>
+        <div class="relative">
+            <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+            </svg>
+            <input type="text" x-model="search" placeholder="Search packages..."
+                   class="text-sm rounded-lg pl-9 pr-3 py-1.5 w-56 focus:outline-none focus:border-primary"
+                   :style="dark ? 'background:#252840;color:#d1d5db;border:1px solid #2d3154' : 'background:#f9fafb;color:#111827;border:1px solid #e5e7eb'"/>
+        </div>
     </div>
 
     <table class="w-full">
@@ -88,7 +95,10 @@
         </thead>
         <tbody>
             @forelse($packages as $package)
-            <tr :style="dark ? 'border-bottom:1px solid #252840' : 'border-bottom:1px solid #f3f4f6'">
+            <tr class="searchable-row"
+                data-search="{{ strtolower($package->name . ' ' . $package->category . ' ' . $package->description) }}"
+                x-show="matches('{{ strtolower($package->name . ' ' . $package->category . ' ' . $package->description) }}')"
+                :style="dark ? 'border-bottom:1px solid #252840' : 'border-bottom:1px solid #f3f4f6'">
                 <td class="px-4 py-3">
                     <div class="flex items-center gap-3">
                         <div class="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0"
@@ -165,8 +175,13 @@
         </tbody>
     </table>
 
+    {{-- No search results --}}
+    <div x-show="search.length > 0 && visibleCount() === 0" class="px-4 py-8 text-center text-gray-500 text-sm">
+        No packages match "<span x-text="search"></span>"
+    </div>
+
     @if($packages->hasPages())
-    <div class="px-4 py-3" :style="dark ? 'border-top:1px solid #252840' : 'border-top:1px solid #e5e7eb'">
+    <div class="px-4 py-3" x-show="search.length === 0" :style="dark ? 'border-top:1px solid #252840' : 'border-top:1px solid #e5e7eb'">
         {{ $packages->links() }}
     </div>
     @endif
@@ -179,7 +194,7 @@
 
         <div class="p-5 flex items-center justify-between" :style="dark ? 'border-bottom:1px solid #252840' : 'border-bottom:1px solid #e5e7eb'">
             <h2 id="modalTitle" class="font-semibold text-lg" :class="dark ? 'text-white' : 'text-gray-900'">New Package</h2>
-            <button type="button" onclick="closePackageModal()" class="text-gray-400 hover:text-white">
+            <button type="button" onclick="closePackageModal()" class="text-gray-400 hover:text-red-400">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                 </svg>
@@ -231,9 +246,7 @@
                 <textarea name="features" id="pkg_features" rows="4"
                           class="w-full text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-primary"
                           :style="dark ? 'background:#252840;color:#fff;border:1px solid #2d3154' : 'background:#f9fafb;color:#111827;border:1px solid #e5e7eb'"
-                          placeholder="Full Day Coverage (Up to 12 Hours)
-2 Professional Photographers
-Edited Photos (High Resolution)"></textarea>
+                          placeholder="Full Day Coverage (Up to 12 Hours)&#10;2 Professional Photographers&#10;Edited Photos (High Resolution)"></textarea>
             </div>
 
             <div>
@@ -262,7 +275,28 @@ Edited Photos (High Resolution)"></textarea>
     </div>
 </div>
 
+</div>
+
 <script>
+function packageSearch() {
+    return {
+        search: '',
+        matches(text) {
+            if (this.search.length === 0) return true;
+            return text.includes(this.search.toLowerCase());
+        },
+        visibleCount() {
+            if (this.search.length === 0) return 1;
+            const rows = document.querySelectorAll('.searchable-row');
+            let count = 0;
+            rows.forEach(row => {
+                if (row.dataset.search.includes(this.search.toLowerCase())) count++;
+            });
+            return count;
+        }
+    }
+}
+
 function closePackageModal() {
     document.getElementById('addPackageModal').classList.add('hidden');
     document.getElementById('packageForm').reset();
