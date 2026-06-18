@@ -27,6 +27,7 @@ Route::get('/', fn() => redirect()->route('login'));
 Route::middleware('auth')->group(function () {
 
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::patch('/dashboard/widgets', [DashboardController::class, 'updateWidgets'])->name('dashboard.widgets');
 
     Route::resource('clients', ClientController::class);
     Route::resource('packages', PackageController::class);

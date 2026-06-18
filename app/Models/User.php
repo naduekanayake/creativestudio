@@ -12,7 +12,7 @@ class User extends Authenticatable
 
     protected $fillable = [
         'name', 'email', 'password',
-        'role', 'phone', 'position', 'is_active', 'avatar',
+        'role', 'phone', 'position', 'is_active', 'avatar', 'dashboard_widgets',
     ];
 
     protected $hidden = [
@@ -20,9 +20,10 @@ class User extends Authenticatable
     ];
 
     protected $casts = [
-        'email_verified_at' => 'datetime',
-        'password'          => 'hashed',
-        'is_active'         => 'boolean',
+        'email_verified_at'  => 'datetime',
+        'password'           => 'hashed',
+        'is_active'          => 'boolean',
+        'dashboard_widgets'  => 'array',
     ];
 
     public function isSuperAdmin(): bool

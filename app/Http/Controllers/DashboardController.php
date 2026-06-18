@@ -19,4 +19,17 @@ class DashboardController extends Controller
 
         return view('dashboard', compact('stats'));
     }
+
+    public function updateWidgets(Request $request)
+    {
+        $widgets = $request->input('widgets', []);
+
+        $allowed = ['stats', 'recent_jobs', 'quick_stats', 'recent_activity'];
+        $clean = array_values(array_intersect($allowed, $widgets));
+
+        $user = $request->user();
+        $user->update(['dashboard_widgets' => $clean]);
+
+        return back()->with('success', 'Dashboard layout saved!');
+    }
 }
