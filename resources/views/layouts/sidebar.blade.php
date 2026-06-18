@@ -14,8 +14,8 @@
                 </svg>
             </div>
             <div>
-                <p class="font-bold text-xs leading-tight" :class="dark ? 'text-white' : 'text-gray-900'">CreativeStudio</p>
-                <p class="text-gray-400 text-xs">Photography & Films</p>
+                <p class="font-bold text-xs leading-tight" :class="dark ? 'text-white' : 'text-gray-900'">{{ \App\Models\Setting::get('studio_name', 'CreativeStudio') }}</p>
+                <p class="text-gray-400 text-xs">{{ \App\Models\Setting::get('studio_tagline', 'Photography & Films') }}</p>
             </div>
         </div>
     </div>
@@ -61,7 +61,7 @@
         <x-nav-item href="{{ route('users.index') }}" icon="users" label="Users"/>
         @endif
 
-        <x-nav-item href="#" icon="settings" label="Settings"/>
+        <x-nav-item href="{{ route('settings.index') }}" icon="settings" label="Settings"/>
 
     </nav>
 
