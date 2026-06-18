@@ -4,6 +4,8 @@
 
 @section('content')
 
+<div x-data="deliverableSearch()">
+
 {{-- Header --}}
 <div class="flex items-center justify-between mb-6">
     <div>
@@ -70,9 +72,14 @@
 <div class="rounded-xl" :style="dark ? 'background:#1a1d2e;border:1px solid #252840' : 'background:#fff;border:1px solid #e5e7eb'">
     <div class="p-4 flex items-center justify-between" :style="dark ? 'border-bottom:1px solid #252840' : 'border-bottom:1px solid #e5e7eb'">
         <h3 class="font-semibold" :class="dark ? 'text-white' : 'text-gray-900'">All Deliverables</h3>
-        <input type="text" placeholder="Search..."
-               class="text-sm rounded-lg px-3 py-1.5 w-48 focus:outline-none"
-               :style="dark ? 'background:#252840;color:#d1d5db;border:1px solid #2d3154' : 'background:#f9fafb;color:#111827;border:1px solid #e5e7eb'"/>
+        <div class="relative">
+            <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+            </svg>
+            <input type="text" x-model="search" placeholder="Search..."
+                   class="text-sm rounded-lg pl-9 pr-3 py-1.5 w-56 focus:outline-none focus:border-primary"
+                   :style="dark ? 'background:#252840;color:#d1d5db;border:1px solid #2d3154' : 'background:#f9fafb;color:#111827;border:1px solid #e5e7eb'"/>
+        </div>
     </div>
 
     <table class="w-full">
@@ -89,7 +96,10 @@
         </thead>
         <tbody>
             @forelse($deliverables as $deliverable)
-            <tr :style="dark ? 'border-bottom:1px solid #252840' : 'border-bottom:1px solid #f3f4f6'">
+            <tr class="searchable-row"
+                data-search="{{ strtolower($deliverable->title . ' ' . $deliverable->client->name . ' ' . $deliverable->type . ' ' . ($deliverable->job ? $deliverable->job->job_number : '') . ' ' . $deliverable->status) }}"
+                x-show="matches('{{ strtolower($deliverable->title . ' ' . $deliverable->client->name . ' ' . $deliverable->type . ' ' . ($deliverable->job ? $deliverable->job->job_number : '') . ' ' . $deliverable->status) }}')"
+                :style="dark ? 'border-bottom:1px solid #252840' : 'border-bottom:1px solid #f3f4f6'">
                 <td class="px-4 py-3">
                     <div class="flex items-center gap-3">
                         <div class="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0"
@@ -155,7 +165,7 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                                 </svg>
                             </button>
-        </form>
+                        </form>
                     </div>
                 </td>
             </tr>
@@ -169,11 +179,39 @@
         </tbody>
     </table>
 
+    {{-- No search results --}}
+    <div x-show="search.length > 0 && visibleCount() === 0" class="px-4 py-8 text-center text-gray-500 text-sm">
+        No deliverables match "<span x-text="search"></span>"
+    </div>
+
     @if($deliverables->hasPages())
-    <div class="px-4 py-3" :style="dark ? 'border-top:1px solid #252840' : 'border-top:1px solid #e5e7eb'">
+    <div class="px-4 py-3" x-show="search.length === 0" :style="dark ? 'border-top:1px solid #252840' : 'border-top:1px solid #e5e7eb'">
         {{ $deliverables->links() }}
     </div>
     @endif
 </div>
+
+</div>
+
+<script>
+function deliverableSearch() {
+    return {
+        search: '',
+        matches(text) {
+            if (this.search.length === 0) return true;
+            return text.includes(this.search.toLowerCase());
+        },
+        visibleCount() {
+            if (this.search.length === 0) return 1;
+            const rows = document.querySelectorAll('.searchable-row');
+            let count = 0;
+            rows.forEach(row => {
+                if (row.dataset.search.includes(this.search.toLowerCase())) count++;
+            });
+            return count;
+        }
+    }
+}
+</script>
 
 @endsection

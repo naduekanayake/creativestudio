@@ -12,7 +12,7 @@ class User extends Authenticatable
 
     protected $fillable = [
         'name', 'email', 'password',
-        'role', 'phone', 'position', 'is_active',
+        'role', 'phone', 'position', 'is_active', 'avatar',
     ];
 
     protected $hidden = [
@@ -53,6 +53,11 @@ class User extends Authenticatable
             'staff'       => 'bg-gray-500/20 text-gray-400',
             default       => 'bg-gray-500/20 text-gray-400',
         };
+    }
+
+    public function getAvatarUrlAttribute(): ?string
+    {
+        return $this->avatar ? asset('storage/' . $this->avatar) : null;
     }
 
     public function activityLogs()

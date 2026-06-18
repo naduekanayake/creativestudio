@@ -20,6 +20,7 @@ use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\ContractController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\SearchController;
+use App\Http\Controllers\ProfileController;
 
 Route::get('/', fn() => redirect()->route('login'));
 
@@ -68,9 +69,10 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/search', [SearchController::class, 'search'])->name('search');
 
-    // Profile routes (Breeze compatibility)
-    Route::get('/profile', fn() => redirect()->route('dashboard'))->name('profile.edit');
-    Route::patch('/profile', fn() => redirect()->route('dashboard'))->name('profile.update');
+    // Profile routes
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::patch('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password');
     Route::delete('/profile', fn() => redirect()->route('dashboard'))->name('profile.destroy');
 
     // Admin only

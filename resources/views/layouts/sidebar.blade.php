@@ -68,11 +68,15 @@
     {{-- User Profile --}}
     <div class="p-3" :style="dark ? 'border-top:1px solid #1e2130' : 'border-top:1px solid #e5e7eb'">
         <div class="flex items-center gap-2">
-            <div class="w-7 h-7 bg-primary rounded-full flex items-center justify-center flex-shrink-0">
+            <a href="{{ route('profile.edit') }}" class="w-7 h-7 bg-primary rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden">
+                @if(auth()->check() && auth()->user()->avatar)
+                <img src="{{ auth()->user()->avatar_url }}" class="w-full h-full object-cover"/>
+                @else
                 <span class="text-white text-xs font-bold">
                     {{ auth()->check() ? substr(auth()->user()->name, 0, 1) : 'U' }}
                 </span>
-            </div>
+                @endif
+            </a>
             <div class="flex-1 min-w-0">
                 <p class="text-xs font-medium truncate" :class="dark ? 'text-white' : 'text-gray-900'">
                     {{ auth()->check() ? auth()->user()->name : 'User' }}

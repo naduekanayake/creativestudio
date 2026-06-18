@@ -16,34 +16,27 @@
                 class="transition-colors"
                 :class="dark ? 'text-gray-400 hover:text-white' : 'text-gray-500 hover:text-gray-900'">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M4 6h16M4 12h16M4 18h16"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
             </svg>
         </button>
 
         {{-- Search --}}
         <div class="relative" x-data="searchBar()" @click.away="open = false">
-            <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 z-10"
-                 fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+            <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
             </svg>
             <input type="text" x-model="query" @input.debounce.300ms="doSearch()" @focus="open = true"
                    placeholder="Search clients, jobs, invoices..."
-                   class="text-sm rounded-lg pl-10 pr-20 py-2 focus:outline-none focus:border-primary w-72"
+                   class="text-sm rounded-lg pl-10 pr-4 py-2 focus:outline-none focus:border-primary w-72"
                    :style="dark ? 'background:#252840;color:#d1d5db;border:1px solid #2d3154' : 'background:#f9fafb;color:#374151;border:1px solid #e5e7eb'"/>
-            <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-500 px-1.5 py-0.5 rounded"
-                  :style="dark ? 'background:#2d3154' : 'background:#e5e7eb'">Ctrl+/</span>
 
             {{-- Results Dropdown --}}
             <div x-show="open && query.length >= 2" x-cloak
                  class="absolute left-0 mt-2 w-96 rounded-xl shadow-lg z-50 overflow-hidden"
                  :style="dark ? 'background:#1a1d2e;border:1px solid #252840' : 'background:#fff;border:1px solid #e5e7eb'">
-
                 <template x-if="loading">
                     <div class="px-4 py-6 text-center text-gray-500 text-sm">Searching...</div>
                 </template>
-
                 <template x-if="!loading && results.length > 0">
                     <div class="max-h-96 overflow-y-auto py-1">
                         <template x-for="item in results" :key="item.url">
@@ -67,7 +60,6 @@
                         </template>
                     </div>
                 </template>
-
                 <template x-if="!loading && results.length === 0 && query.length >= 2">
                     <div class="px-4 py-6 text-center text-gray-500 text-sm">
                         No results for "<span x-text="query"></span>"
@@ -98,8 +90,7 @@
                     class="relative transition-colors p-1.5 rounded-lg"
                     :class="dark ? 'text-gray-400 hover:text-white hover:bg-dark-700' : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100'">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
                 </svg>
                 @if($notifCount > 0)
                 <span class="absolute top-0.5 right-0.5 w-4 h-4 bg-primary text-white text-xs rounded-full flex items-center justify-center">{{ $notifCount }}</span>
@@ -109,11 +100,9 @@
             <div x-show="open" x-cloak x-transition
                  class="absolute right-0 mt-2 w-80 rounded-xl shadow-lg z-50 overflow-hidden"
                  :style="dark ? 'background:#1a1d2e;border:1px solid #252840' : 'background:#fff;border:1px solid #e5e7eb'">
-
                 <div class="p-3" :style="dark ? 'border-bottom:1px solid #252840' : 'border-bottom:1px solid #e5e7eb'">
                     <p class="font-semibold text-sm" :class="dark ? 'text-white' : 'text-gray-900'">Notifications</p>
                 </div>
-
                 <div class="max-h-80 overflow-y-auto">
                     @if($overdueInvoices > 0)
                     <a href="{{ route('invoices.index') }}" class="block px-3 py-3 transition-colors"
@@ -132,7 +121,6 @@
                         </div>
                     </a>
                     @endif
-
                     @forelse($pendingReminders as $reminder)
                     <a href="{{ route('reminders.index') }}" class="block px-3 py-3 transition-colors"
                        :class="dark ? 'hover:bg-dark-700' : 'hover:bg-gray-50'"
@@ -157,7 +145,6 @@
                     @endif
                     @endforelse
                 </div>
-
                 <a href="{{ route('reminders.index') }}" class="block px-3 py-2.5 text-center text-xs text-primary hover:underline"
                    :style="dark ? 'border-top:1px solid #252840' : 'border-top:1px solid #e5e7eb'">
                     View all reminders
@@ -169,10 +156,14 @@
         <div class="relative" x-data="{ open: false }">
             <button @click="open = !open" @click.away="open = false"
                     class="flex items-center gap-2 cursor-pointer">
-                <div class="w-8 h-8 bg-primary rounded-full flex items-center justify-center flex-shrink-0">
+                <div class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden bg-primary">
+                    @if(auth()->check() && auth()->user()->avatar)
+                    <img src="{{ auth()->user()->avatar_url }}" class="w-full h-full object-cover"/>
+                    @else
                     <span class="text-white text-xs font-bold">
                         {{ auth()->check() ? substr(auth()->user()->name, 0, 1) : 'U' }}
                     </span>
+                    @endif
                 </div>
                 <div class="text-left">
                     <p class="text-xs font-medium" :class="dark ? 'text-white' : 'text-gray-900'">
@@ -191,12 +182,29 @@
                  class="absolute right-0 mt-2 w-56 rounded-xl shadow-lg z-50 overflow-hidden"
                  :style="dark ? 'background:#1a1d2e;border:1px solid #252840' : 'background:#fff;border:1px solid #e5e7eb'">
 
-                <div class="p-3" :style="dark ? 'border-bottom:1px solid #252840' : 'border-bottom:1px solid #e5e7eb'">
-                    <p class="text-sm font-medium" :class="dark ? 'text-white' : 'text-gray-900'">{{ auth()->user()->name }}</p>
-                    <p class="text-xs text-gray-500">{{ auth()->user()->email }}</p>
+                <div class="p-3 flex items-center gap-3" :style="dark ? 'border-bottom:1px solid #252840' : 'border-bottom:1px solid #e5e7eb'">
+                    <div class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden bg-primary">
+                        @if(auth()->user()->avatar)
+                        <img src="{{ auth()->user()->avatar_url }}" class="w-full h-full object-cover"/>
+                        @else
+                        <span class="text-white text-sm font-bold">{{ substr(auth()->user()->name, 0, 1) }}</span>
+                        @endif
+                    </div>
+                    <div class="min-w-0">
+                        <p class="text-sm font-medium truncate" :class="dark ? 'text-white' : 'text-gray-900'">{{ auth()->user()->name }}</p>
+                        <p class="text-xs text-gray-500 truncate">{{ auth()->user()->email }}</p>
+                    </div>
                 </div>
 
                 <div class="py-1">
+                    <a href="{{ route('profile.edit') }}"
+                       class="flex items-center gap-3 px-3 py-2 text-sm transition-colors"
+                       :class="dark ? 'text-gray-300 hover:bg-dark-700' : 'text-gray-700 hover:bg-gray-50'">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                        </svg>
+                        My Profile
+                    </a>
                     @if(auth()->user()->isAdmin())
                     <a href="{{ route('users.index') }}"
                        class="flex items-center gap-3 px-3 py-2 text-sm transition-colors"
@@ -244,19 +252,14 @@ function searchBar() {
         loading: false,
         open: false,
         async doSearch() {
-            if (this.query.length < 2) {
-                this.results = [];
-                return;
-            }
+            if (this.query.length < 2) { this.results = []; return; }
             this.loading = true;
             this.open = true;
             try {
                 const res = await fetch(`{{ route('search') }}?q=${encodeURIComponent(this.query)}`);
                 const data = await res.json();
                 this.results = data.results;
-            } catch (e) {
-                this.results = [];
-            }
+            } catch (e) { this.results = []; }
             this.loading = false;
         }
     }

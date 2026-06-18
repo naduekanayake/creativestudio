@@ -5,11 +5,33 @@
 @section('content')
 
 {{-- Header --}}
-<div class="flex items-center justify-between mb-6">
+<div class="flex items-center justify-between mb-6 print:hidden">
     <div>
         <h1 class="text-2xl font-bold" :class="dark ? 'text-white' : 'text-gray-900'">Reports & Analytics</h1>
         <p class="text-gray-400 text-sm mt-0.5">Business performance overview</p>
     </div>
+    <div class="flex items-center gap-2">
+        <a href="{{ route('reports.financial') }}"
+           class="text-sm font-medium px-4 py-2 rounded-lg transition-colors"
+           :class="dark ? 'bg-dark-700 hover:bg-dark-600 text-white' : 'bg-gray-100 hover:bg-gray-200 text-gray-700'">
+            Financial Report
+        </a>
+        <button onclick="window.print()"
+                class="bg-primary hover:bg-primary-hover text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
+            </svg>
+            Print / PDF
+        </button>
+    </div>
+</div>
+
+{{-- Print Header (only visible in print) --}}
+<div class="hidden print:block mb-6 text-center">
+    <h1 class="text-2xl font-bold text-gray-900">{{ \App\Models\Setting::get('studio_name', 'Creative Studio') }}</h1>
+    <p class="text-gray-600 text-sm">{{ \App\Models\Setting::get('studio_tagline', 'Photography & Films') }}</p>
+    <p class="text-gray-500 text-xs mt-2">Business Performance Report · Generated {{ now()->format('d M Y, h:i A') }}</p>
+    <hr class="mt-3" style="border-color:#7C3AED;border-width:1px"/>
 </div>
 
 {{-- Overview Stats --}}
@@ -139,6 +161,10 @@
         <h3 class="font-semibold mb-4" :class="dark ? 'text-white' : 'text-gray-900'">Top Clients by Revenue</h3>
         <div class="space-y-3">
             @forelse($topClients as $index => $client)
+            @php
+                $maxRevenue = $topClients->max('payments_sum_amount') ?: 1;
+                $width = round((($client->payments_sum_amount ?? 0) / $maxRevenue) * 100);
+            @endphp
             <div class="flex items-center gap-3">
                 <div class="w-7 h-7 bg-primary rounded-full flex items-center justify-center flex-shrink-0">
                     <span class="text-white text-xs font-bold">{{ substr($client->name, 0, 1) }}</span>
@@ -149,10 +175,6 @@
                         <span class="text-sm text-green-400 font-medium">Rs. {{ number_format($client->payments_sum_amount ?? 0) }}</span>
                     </div>
                     <div class="h-1.5 rounded-full" :style="dark ? 'background:#252840' : 'background:#f3f4f6'">
-                        @php
-                            $maxRevenue = $topClients->max('payments_sum_amount') ?: 1;
-                            $width = ($client->payments_sum_amount / $maxRevenue) * 100;
-                        @endphp
                         <div class="h-1.5 rounded-full bg-primary" style="width: {{ $width }}%"></div>
                     </div>
                 </div>
@@ -270,5 +292,16 @@ new ApexCharts(document.getElementById('paymentMethodChart'), {
     tooltip: { theme: 'dark', y: { formatter: (v) => 'Rs. ' + v.toLocaleString() } },
 }).render();
 </script>
+
+<style>
+@media print {
+    body { background: white !important; }
+    aside, header, .print\:hidden { display: none !important; }
+    main { padding: 0 !important; background: white !important; }
+    .rounded-xl { border: 1px solid #e5e7eb !important; background: white !important; box-shadow: none !important; page-break-inside: avoid; }
+    * { color: #111827 !important; }
+    @page { margin: 1.5cm; }
+}
+</style>
 
 @endsection
