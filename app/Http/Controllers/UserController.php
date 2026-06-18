@@ -7,6 +7,7 @@ use App\Models\ActivityLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 
 class UserController extends Controller
 {
@@ -24,16 +25,21 @@ class UserController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name'                  => 'required|string|max:255',
-            'email'                 => 'required|email|unique:users,email',
-            'password'              => 'required|string|min:8|confirmed',
-            'role'                  => 'required|in:super_admin,admin,staff',
-            'phone'                 => 'nullable|string|max:20',
-            'position'              => 'nullable|string|max:100',
+            'name'     => 'required|string|max:255',
+            'email'    => 'required|email|unique:users,email',
+            'password' => 'required|string|min:8|confirmed',
+            'role'     => 'required|in:super_admin,admin,staff',
+            'phone'    => 'nullable|string|max:20',
+            'position' => 'nullable|string|max:100',
+            'avatar'   => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
         ]);
 
         $validated['password']  = Hash::make($validated['password']);
         $validated['is_active'] = true;
+
+        if ($request->hasFile('avatar')) {
+            $validated['avatar'] = $request->file('avatar')->store('avatars', 'public');
+        }
 
         $user = User::create($validated);
 
@@ -53,11 +59,11 @@ class UserController extends Controller
     public function update(Request $request, User $user)
     {
         $validated = $request->validate([
-            'name'      => 'required|string|max:255',
-            'email'     => 'required|email|unique:users,email,' . $user->id,
-            'role'      => 'required|in:super_admin,admin,staff',
-            'phone'     => 'nullable|string|max:20',
-            'position'  => 'nullable|string|max:100',
+            'name'     => 'required|string|max:255',
+            'email'    => 'required|email|unique:users,email,' . $user->id,
+            'role'     => 'required|in:super_admin,admin,staff',
+            'phone'    => 'nullable|string|max:20',
+            'position' => 'nullable|string|max:100',
         ]);
 
         if ($request->filled('password')) {
@@ -84,6 +90,10 @@ class UserController extends Controller
 
         if ($user->id === $currentUserId) {
             return back()->with('error', 'You cannot delete your own account!');
+        }
+
+        if ($user->avatar) {
+            Storage::disk('public')->delete($user->avatar);
         }
 
         $name = $user->name;

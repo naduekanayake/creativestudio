@@ -4,6 +4,8 @@
 
 @section('content')
 
+<link href="https://cdn.jsdelivr.net/npm/cropperjs@1.6.1/dist/cropper.min.css" rel="stylesheet"/>
+
 <div class="max-w-2xl mx-auto">
     <div class="flex items-center gap-3 mb-6">
         <a href="{{ route('users.index') }}" class="text-gray-400 hover:text-white transition-colors">
@@ -26,8 +28,29 @@
         </div>
         @endif
 
-        <form method="POST" action="{{ route('users.store') }}">
+        <form method="POST" action="{{ route('users.store') }}" enctype="multipart/form-data" id="userForm">
             @csrf
+
+            {{-- Avatar --}}
+            <div class="flex items-center gap-4 mb-6">
+                <div class="w-20 h-20 rounded-full overflow-hidden flex items-center justify-center flex-shrink-0 bg-primary">
+                    <img id="avatarPreview" class="w-full h-full object-cover hidden"/>
+                    <svg id="avatarIcon" class="w-9 h-9 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                    </svg>
+                </div>
+                <div>
+                    <label class="cursor-pointer text-sm font-medium px-4 py-2 rounded-lg transition-colors inline-block"
+                           :class="dark ? 'bg-dark-700 hover:bg-dark-600 text-white' : 'bg-gray-100 hover:bg-gray-200 text-gray-700'">
+                        Upload Photo
+                        <input type="file" id="avatarInput" accept="image/*" class="hidden"/>
+                    </label>
+                    <p class="text-gray-500 text-xs mt-1">JPG, PNG or WEBP. Max 2MB.</p>
+                </div>
+            </div>
+
+            {{-- Hidden file field for cropped image --}}
+            <input type="file" name="avatar" id="avatarFile" accept="image/*" class="hidden"/>
 
             {{-- Name & Email --}}
             <div class="grid grid-cols-2 gap-4 mb-4">
@@ -134,5 +157,95 @@
         </form>
     </div>
 </div>
+
+{{-- Crop Modal --}}
+<div id="cropModal" class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="rounded-xl w-full max-w-md" :style="dark ? 'background:#1a1d2e;border:1px solid #252840' : 'background:#fff;border:1px solid #e5e7eb'">
+        <div class="p-4" :style="dark ? 'border-bottom:1px solid #252840' : 'border-bottom:1px solid #e5e7eb'">
+            <h3 class="font-semibold" :class="dark ? 'text-white' : 'text-gray-900'">Adjust Photo</h3>
+            <p class="text-gray-400 text-xs mt-0.5">Drag to move · scroll to zoom</p>
+        </div>
+        <div class="p-4">
+            <div class="max-h-80 overflow-hidden">
+                <img id="cropImage" class="max-w-full block"/>
+            </div>
+        </div>
+        <div class="p-4 flex gap-3" :style="dark ? 'border-top:1px solid #252840' : 'border-top:1px solid #e5e7eb'">
+            <button type="button" id="cropCancel"
+                    class="flex-1 text-sm font-medium py-2 rounded-lg transition-colors"
+                    :class="dark ? 'bg-dark-700 hover:bg-dark-600 text-white' : 'bg-gray-100 hover:bg-gray-200 text-gray-700'">
+                Cancel
+            </button>
+            <button type="button" id="cropConfirm"
+                    class="flex-1 bg-primary hover:bg-primary-hover text-white text-sm font-medium py-2 rounded-lg transition-colors">
+                Apply
+            </button>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/cropperjs@1.6.1/dist/cropper.min.js"></script>
+<script>
+(function() {
+    const input = document.getElementById('avatarInput');
+    const modal = document.getElementById('cropModal');
+    const cropImage = document.getElementById('cropImage');
+    const preview = document.getElementById('avatarPreview');
+    const icon = document.getElementById('avatarIcon');
+    const fileField = document.getElementById('avatarFile');
+    let cropper = null;
+
+    input.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        if (file.size > 2 * 1024 * 1024) {
+            alert('Image must be under 2MB');
+            input.value = '';
+            return;
+        }
+        const reader = new FileReader();
+        reader.onload = function(ev) {
+            cropImage.src = ev.target.result;
+            modal.classList.remove('hidden');
+            if (cropper) cropper.destroy();
+            cropper = new Cropper(cropImage, {
+                aspectRatio: 1,
+                viewMode: 1,
+                dragMode: 'move',
+                autoCropArea: 1,
+                cropBoxResizable: false,
+                cropBoxMovable: false,
+            });
+        };
+        reader.readAsDataURL(file);
+    });
+
+    document.getElementById('cropCancel').addEventListener('click', function() {
+        modal.classList.add('hidden');
+        input.value = '';
+        if (cropper) { cropper.destroy(); cropper = null; }
+    });
+
+    document.getElementById('cropConfirm').addEventListener('click', function() {
+        if (!cropper) return;
+        const canvas = cropper.getCroppedCanvas({ width: 400, height: 400 });
+        canvas.toBlob(function(blob) {
+            const croppedFile = new File([blob], 'avatar.png', { type: 'image/png' });
+            const dt = new DataTransfer();
+            dt.items.add(croppedFile);
+            fileField.files = dt.files;
+
+            const url = canvas.toDataURL('image/png');
+            preview.src = url;
+            preview.classList.remove('hidden');
+            icon.classList.add('hidden');
+
+            modal.classList.add('hidden');
+            cropper.destroy();
+            cropper = null;
+        }, 'image/png');
+    });
+})();
+</script>
 
 @endsection
