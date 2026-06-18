@@ -19,6 +19,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\ContractController;
 use App\Http\Controllers\SettingController;
+use App\Http\Controllers\SearchController;
 
 Route::get('/', fn() => redirect()->route('login'));
 
@@ -64,6 +65,8 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/settings', [SettingController::class, 'index'])->name('settings.index');
     Route::patch('/settings', [SettingController::class, 'update'])->name('settings.update');
+
+    Route::get('/search', [SearchController::class, 'search'])->name('search');
 
     // Profile routes (Breeze compatibility)
     Route::get('/profile', fn() => redirect()->route('dashboard'))->name('profile.edit');

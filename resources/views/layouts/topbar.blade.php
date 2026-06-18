@@ -22,17 +22,58 @@
         </button>
 
         {{-- Search --}}
-        <div class="relative">
-            <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"
+        <div class="relative" x-data="searchBar()" @click.away="open = false">
+            <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 z-10"
                  fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                       d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
             </svg>
-            <input type="text" placeholder="Search clients, projects..."
+            <input type="text" x-model="query" @input.debounce.300ms="doSearch()" @focus="open = true"
+                   placeholder="Search clients, jobs, invoices..."
                    class="text-sm rounded-lg pl-10 pr-20 py-2 focus:outline-none focus:border-primary w-72"
                    :style="dark ? 'background:#252840;color:#d1d5db;border:1px solid #2d3154' : 'background:#f9fafb;color:#374151;border:1px solid #e5e7eb'"/>
             <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-500 px-1.5 py-0.5 rounded"
                   :style="dark ? 'background:#2d3154' : 'background:#e5e7eb'">Ctrl+/</span>
+
+            {{-- Results Dropdown --}}
+            <div x-show="open && query.length >= 2" x-cloak
+                 class="absolute left-0 mt-2 w-96 rounded-xl shadow-lg z-50 overflow-hidden"
+                 :style="dark ? 'background:#1a1d2e;border:1px solid #252840' : 'background:#fff;border:1px solid #e5e7eb'">
+
+                <template x-if="loading">
+                    <div class="px-4 py-6 text-center text-gray-500 text-sm">Searching...</div>
+                </template>
+
+                <template x-if="!loading && results.length > 0">
+                    <div class="max-h-96 overflow-y-auto py-1">
+                        <template x-for="item in results" :key="item.url">
+                            <a :href="item.url" class="flex items-center gap-3 px-4 py-2.5 transition-colors"
+                               :class="dark ? 'hover:bg-dark-700' : 'hover:bg-gray-50'">
+                                <div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
+                                     :class="{
+                                        'bg-blue-500/20 text-blue-400': item.color === 'blue',
+                                        'bg-pink-500/20 text-pink-400': item.color === 'pink',
+                                        'bg-purple-500/20 text-purple-400': item.color === 'purple',
+                                        'bg-orange-500/20 text-orange-400': item.color === 'orange'
+                                     }">
+                                    <span class="text-xs font-bold" x-text="item.type.charAt(0)"></span>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-sm font-medium truncate" :class="dark ? 'text-white' : 'text-gray-900'" x-text="item.title"></p>
+                                    <p class="text-xs text-gray-500 truncate" x-text="item.sub"></p>
+                                </div>
+                                <span class="text-xs text-gray-500" x-text="item.type"></span>
+                            </a>
+                        </template>
+                    </div>
+                </template>
+
+                <template x-if="!loading && results.length === 0 && query.length >= 2">
+                    <div class="px-4 py-6 text-center text-gray-500 text-sm">
+                        No results for "<span x-text="query"></span>"
+                    </div>
+                </template>
+            </div>
         </div>
     </div>
 
@@ -65,7 +106,6 @@
                 @endif
             </button>
 
-            {{-- Notifications Dropdown --}}
             <div x-show="open" x-cloak x-transition
                  class="absolute right-0 mt-2 w-80 rounded-xl shadow-lg z-50 overflow-hidden"
                  :style="dark ? 'background:#1a1d2e;border:1px solid #252840' : 'background:#fff;border:1px solid #e5e7eb'">
@@ -75,7 +115,6 @@
                 </div>
 
                 <div class="max-h-80 overflow-y-auto">
-                    {{-- Overdue Invoices --}}
                     @if($overdueInvoices > 0)
                     <a href="{{ route('invoices.index') }}" class="block px-3 py-3 transition-colors"
                        :class="dark ? 'hover:bg-dark-700' : 'hover:bg-gray-50'"
@@ -94,7 +133,6 @@
                     </a>
                     @endif
 
-                    {{-- Pending Reminders --}}
                     @forelse($pendingReminders as $reminder)
                     <a href="{{ route('reminders.index') }}" class="block px-3 py-3 transition-colors"
                        :class="dark ? 'hover:bg-dark-700' : 'hover:bg-gray-50'"
@@ -149,18 +187,15 @@
                 </svg>
             </button>
 
-            {{-- Profile Dropdown --}}
             <div x-show="open" x-cloak x-transition
                  class="absolute right-0 mt-2 w-56 rounded-xl shadow-lg z-50 overflow-hidden"
                  :style="dark ? 'background:#1a1d2e;border:1px solid #252840' : 'background:#fff;border:1px solid #e5e7eb'">
 
-                {{-- User Info --}}
                 <div class="p-3" :style="dark ? 'border-bottom:1px solid #252840' : 'border-bottom:1px solid #e5e7eb'">
                     <p class="text-sm font-medium" :class="dark ? 'text-white' : 'text-gray-900'">{{ auth()->user()->name }}</p>
                     <p class="text-xs text-gray-500">{{ auth()->user()->email }}</p>
                 </div>
 
-                {{-- Menu Items --}}
                 <div class="py-1">
                     @if(auth()->user()->isAdmin())
                     <a href="{{ route('users.index') }}"
@@ -183,7 +218,6 @@
                     </a>
                 </div>
 
-                {{-- Logout --}}
                 <div :style="dark ? 'border-top:1px solid #252840' : 'border-top:1px solid #e5e7eb'">
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
@@ -201,3 +235,30 @@
 
     </div>
 </header>
+
+<script>
+function searchBar() {
+    return {
+        query: '',
+        results: [],
+        loading: false,
+        open: false,
+        async doSearch() {
+            if (this.query.length < 2) {
+                this.results = [];
+                return;
+            }
+            this.loading = true;
+            this.open = true;
+            try {
+                const res = await fetch(`{{ route('search') }}?q=${encodeURIComponent(this.query)}`);
+                const data = await res.json();
+                this.results = data.results;
+            } catch (e) {
+                this.results = [];
+            }
+            this.loading = false;
+        }
+    }
+}
+</script>
