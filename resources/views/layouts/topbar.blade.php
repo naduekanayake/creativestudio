@@ -122,7 +122,7 @@
                     </a>
                     @endif
                     @forelse($pendingReminders as $reminder)
-                    <a href="{{ route('reminders.index') }}" class="block px-3 py-3 transition-colors"
+                    <a href="{{ route('reminders.due') }}" class="block px-3 py-3 transition-colors"
                        :class="dark ? 'hover:bg-dark-700' : 'hover:bg-gray-50'"
                        :style="dark ? 'border-bottom:1px solid #252840' : 'border-bottom:1px solid #f3f4f6'">
                         <div class="flex items-center gap-3">

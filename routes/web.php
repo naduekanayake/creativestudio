@@ -51,6 +51,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/whatsapp', [WhatsAppController::class, 'index'])->name('whatsapp');
     Route::get('/email-sharing', [EmailSharingController::class, 'index'])->name('email-sharing');
 
+    // Reminders — 'due' route MUST come before resource route
+    Route::get('/reminders/due', [ReminderController::class, 'due'])->name('reminders.due');
     Route::resource('reminders', ReminderController::class)->except(['show']);
     Route::patch('/reminders/{reminder}/status', [ReminderController::class, 'updateStatus'])->name('reminders.update-status');
 

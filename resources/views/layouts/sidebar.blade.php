@@ -45,7 +45,7 @@
         <x-nav-item href="{{ route('calendar') }}" icon="calendar" label="Calendar"/>
         <x-nav-item href="{{ route('whatsapp') }}" icon="whatsapp" label="WhatsApp"/>
         <x-nav-item href="{{ route('email-sharing') }}" icon="mail" label="Email Sharing"/>
-        <x-nav-item href="{{ route('reminders.index') }}" icon="bell" label="Reminders"/>
+        <x-nav-item href="{{ route('reminders.due') }}" icon="bell" label="Reminders"/>
 
         {{-- Reports --}}
         <x-nav-dropdown label="Reports" icon="chart">

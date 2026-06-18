@@ -62,4 +62,32 @@ class Reminder extends Model
         return Carbon::parse($this->remind_date)->lt(Carbon::today())
             && $this->status === 'Pending';
     }
+
+    public function getWhatsappMessageAttribute(): string
+    {
+        $studio = \App\Models\Setting::get('studio_name', 'Creative Studio');
+        $clientName = $this->client->name ?? 'there';
+        $date = Carbon::parse($this->remind_date)->format('d M Y');
+
+        return match($this->type) {
+            'Payment'   => "Hi {$clientName}, this is a friendly reminder from {$studio} regarding your payment due on {$date}. {$this->title}. Please let us know if you have any questions. Thank you!",
+            'Delivery'  => "Hi {$clientName}, good news from {$studio}! Your deliverables are ready. {$this->title}. We'll be in touch shortly.",
+            'Shoot'     => "Hi {$clientName}, reminder from {$studio}: your photoshoot is scheduled for {$date}. {$this->title}. Looking forward to it!",
+            'Follow Up' => "Hi {$clientName}, just following up from {$studio}. {$this->title}. Feel free to reach out anytime!",
+            default     => "Hi {$clientName}, a reminder from {$studio}: {$this->title}.",
+        };
+    }
+
+    public function getWhatsappLinkAttribute(): ?string
+    {
+        if (!$this->client || !$this->client->phone) {
+            return null;
+        }
+        // Sri Lankan number formatting: 0771234567 → 94771234567
+        $phone = preg_replace('/[^0-9]/', '', $this->client->phone);
+        if (str_starts_with($phone, '0')) {
+            $phone = '94' . substr($phone, 1);
+        }
+        return 'https://wa.me/' . $phone . '?text=' . rawurlencode($this->whatsapp_message);
+    }
 }

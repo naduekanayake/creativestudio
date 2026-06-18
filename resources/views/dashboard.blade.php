@@ -96,7 +96,7 @@
         <div class="rounded-xl p-4" :style="dark ? 'background:#1a1d2e;border:1px solid #252840' : 'background:#fff;border:1px solid #e5e7eb'">
             <div class="flex items-center justify-between mb-3">
                 <h3 class="font-semibold text-sm" :class="dark ? 'text-white' : 'text-gray-900'">Reminders</h3>
-                <a href="{{ route('reminders.index') }}" class="text-xs text-primary hover:underline">View All</a>
+                <a href="{{ route('reminders.due') }}" class="text-xs text-primary hover:underline">View All</a>
             </div>
             @forelse(\App\Models\Reminder::where('status', 'Pending')->orderBy('remind_date')->take(3)->get() as $reminder)
             <div class="flex items-center gap-2 mb-2">

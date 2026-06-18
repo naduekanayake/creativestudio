@@ -26,6 +26,40 @@ class ReminderController extends Controller
         return view('reminders.index', compact('reminders', 'stats'));
     }
 
+    public function due()
+    {
+        $today = today();
+
+        // Overdue (past + pending)
+        $overdue = Reminder::with('client')
+            ->where('status', 'Pending')
+            ->where('remind_date', '<', $today)
+            ->orderBy('remind_date', 'asc')
+            ->get();
+
+        // Due today
+        $dueToday = Reminder::with('client')
+            ->where('status', 'Pending')
+            ->whereDate('remind_date', $today)
+            ->orderBy('remind_time', 'asc')
+            ->get();
+
+        // Upcoming (next 7 days)
+        $upcoming = Reminder::with('client')
+            ->where('status', 'Pending')
+            ->whereBetween('remind_date', [$today->copy()->addDay(), $today->copy()->addDays(7)])
+            ->orderBy('remind_date', 'asc')
+            ->get();
+
+        $stats = [
+            'overdue'  => $overdue->count(),
+            'today'    => $dueToday->count(),
+            'upcoming' => $upcoming->count(),
+        ];
+
+        return view('reminders.due', compact('overdue', 'dueToday', 'upcoming', 'stats'));
+    }
+
     public function create()
     {
         $clients = Client::orderBy('name')->get();
