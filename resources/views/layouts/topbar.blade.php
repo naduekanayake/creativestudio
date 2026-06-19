@@ -97,9 +97,9 @@
                 @endif
             </button>
 
-            <div x-show="open" x-cloak x-transition
+            <div x-show="open" x-cloak style="display:none"
                  class="absolute right-0 mt-2 w-80 rounded-xl shadow-lg z-50 overflow-hidden"
-                 :style="dark ? 'background:#1a1d2e;border:1px solid #252840' : 'background:#fff;border:1px solid #e5e7eb'">
+                 :style="open ? (dark ? 'background:#1a1d2e;border:1px solid #252840' : 'background:#fff;border:1px solid #e5e7eb') : 'display:none'">
                 <div class="p-3" :style="dark ? 'border-bottom:1px solid #252840' : 'border-bottom:1px solid #e5e7eb'">
                     <p class="font-semibold text-sm" :class="dark ? 'text-white' : 'text-gray-900'">Notifications</p>
                 </div>
@@ -178,9 +178,9 @@
                 </svg>
             </button>
 
-            <div x-show="open" x-cloak x-transition
+            <div x-show="open" x-cloak style="display:none"
                  class="absolute right-0 mt-2 w-56 rounded-xl shadow-lg z-50 overflow-hidden"
-                 :style="dark ? 'background:#1a1d2e;border:1px solid #252840' : 'background:#fff;border:1px solid #e5e7eb'">
+                 :style="open ? (dark ? 'background:#1a1d2e;border:1px solid #252840' : 'background:#fff;border:1px solid #e5e7eb') : 'display:none'">
 
                 <div class="p-3 flex items-center gap-3" :style="dark ? 'border-bottom:1px solid #252840' : 'border-bottom:1px solid #e5e7eb'">
                     <div class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden bg-primary">

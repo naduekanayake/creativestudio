@@ -8,10 +8,20 @@
     <meta name="csrf-token" content="{{ csrf_token() }}"/>
     <title>@yield('title', 'CreativeStudio') — CreativeStudio POS</title>
 
+    {{-- Dark mode — Alpine load වෙන්න කලින්ම apply කරනවා (flash නවත්වයි) --}}
+    <script>
+        (function() {
+            if (localStorage.getItem('dark') === 'true') {
+                document.documentElement.classList.add('dark');
+            }
+        })();
+    </script>
+
     {{-- Tailwind CDN --}}
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
+            darkMode: 'class',
             theme: {
                 extend: {
                     colors: {
@@ -36,6 +46,12 @@
         ::-webkit-scrollbar { width: 4px; height: 4px; }
         ::-webkit-scrollbar-track { background: #1a1d2e; }
         ::-webkit-scrollbar-thumb { background: #7C3AED; border-radius: 2px; }
+
+        /* Alpine load වෙනකම් header + sidebar flash වීම නවත්වයි */
+        header [x-data],
+        aside {
+            transition: none;
+        }
     </style>
 </head>
 <body class="min-h-screen" :class="dark ? 'bg-dark-900' : 'bg-gray-50'" style="background:#0f1117">
