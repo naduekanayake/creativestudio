@@ -88,6 +88,7 @@
                 <th class="text-left px-4 py-3">CLIENT</th>
                 <th class="text-left px-4 py-3">CONTACT</th>
                 <th class="text-left px-4 py-3">TYPE</th>
+                <th class="text-left px-4 py-3">SOURCE</th>
                 <th class="text-left px-4 py-3">STATUS</th>
                 <th class="text-left px-4 py-3">JOINED</th>
                 <th class="text-left px-4 py-3">ACTION</th>
@@ -96,8 +97,8 @@
         <tbody>
             @forelse($clients as $client)
             <tr class="transition-colors searchable-row"
-                data-search="{{ strtolower($client->name . ' ' . $client->email . ' ' . $client->phone . ' ' . $client->company) }}"
-                x-show="matches('{{ strtolower($client->name . ' ' . $client->email . ' ' . $client->phone . ' ' . $client->company) }}')"
+                data-search="{{ strtolower($client->name . ' ' . $client->email . ' ' . $client->phone . ' ' . $client->company . ' ' . $client->lead_source) }}"
+                x-show="matches('{{ strtolower($client->name . ' ' . $client->email . ' ' . $client->phone . ' ' . $client->company . ' ' . $client->lead_source) }}')"
                 :style="dark ? 'border-bottom:1px solid #252840' : 'border-bottom:1px solid #f3f4f6'">
                 <td class="px-4 py-3">
                     <div class="flex items-center gap-3">
@@ -121,6 +122,15 @@
                         {{ $client->type === 'Corporate' ? 'bg-blue-500/20 text-blue-400' : 'bg-purple-500/20 text-purple-400' }}">
                         {{ $client->type }}
                     </span>
+                </td>
+                <td class="px-4 py-3">
+                    @if($client->lead_source)
+                    <span class="px-2 py-0.5 rounded-full text-xs {{ $client->lead_source_color }}">
+                        {{ $client->lead_source }}
+                    </span>
+                    @else
+                    <span class="text-gray-500 text-xs">-</span>
+                    @endif
                 </td>
                 <td class="px-4 py-3">
                     <span class="px-2 py-0.5 rounded-full text-xs
@@ -156,7 +166,7 @@
             </tr>
             @empty
             <tr>
-                <td colspan="6" class="px-4 py-8 text-center text-gray-500">
+                <td colspan="7" class="px-4 py-8 text-center text-gray-500">
                     No clients yet. Add your first client!
                 </td>
             </tr>
@@ -231,18 +241,39 @@
 
             <div class="grid grid-cols-2 gap-4">
                 <div>
+                    <label class="text-gray-400 text-xs mb-1 block">Lead Source *</label>
+                    <select name="lead_source" required
+                            class="w-full text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-primary"
+                            :style="dark ? 'background:#252840;color:#fff;border:1px solid #2d3154' : 'background:#f9fafb;color:#111827;border:1px solid #e5e7eb'">
+                        <option value="">Select source...</option>
+                        @foreach(\App\Models\Client::$leadSources as $source)
+                        <option value="{{ $source }}">{{ $source }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div>
                     <label class="text-gray-400 text-xs mb-1 block">Company Name</label>
                     <input type="text" name="company"
                            class="w-full text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-primary"
                            :style="dark ? 'background:#252840;color:#fff;border:1px solid #2d3154' : 'background:#f9fafb;color:#111827;border:1px solid #e5e7eb'"
                            placeholder="Company (if any)"/>
                 </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
                 <div>
                     <label class="text-gray-400 text-xs mb-1 block">City</label>
                     <input type="text" name="city"
                            class="w-full text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-primary"
                            :style="dark ? 'background:#252840;color:#fff;border:1px solid #2d3154' : 'background:#f9fafb;color:#111827;border:1px solid #e5e7eb'"
                            placeholder="City"/>
+                </div>
+                <div>
+                    <label class="text-gray-400 text-xs mb-1 block">Website</label>
+                    <input type="text" name="website"
+                           class="w-full text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-primary"
+                           :style="dark ? 'background:#252840;color:#fff;border:1px solid #2d3154' : 'background:#f9fafb;color:#111827;border:1px solid #e5e7eb'"
+                           placeholder="www.example.com"/>
                 </div>
             </div>
 
@@ -254,24 +285,15 @@
                        placeholder="Full address"/>
             </div>
 
-            <div class="grid grid-cols-2 gap-4">
-                <div>
-                    <label class="text-gray-400 text-xs mb-1 block">Website</label>
-                    <input type="text" name="website"
-                           class="w-full text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-primary"
-                           :style="dark ? 'background:#252840;color:#fff;border:1px solid #2d3154' : 'background:#f9fafb;color:#111827;border:1px solid #e5e7eb'"
-                           placeholder="www.example.com"/>
-                </div>
-                <div>
-                    <label class="text-gray-400 text-xs mb-1 block">Status</label>
-                    <select name="status"
-                            class="w-full text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-primary"
-                            :style="dark ? 'background:#252840;color:#fff;border:1px solid #2d3154' : 'background:#f9fafb;color:#111827;border:1px solid #e5e7eb'">
-                        <option value="Active">Active</option>
-                        <option value="Pending">Pending</option>
-                        <option value="Inactive">Inactive</option>
-                    </select>
-                </div>
+            <div>
+                <label class="text-gray-400 text-xs mb-1 block">Status</label>
+                <select name="status"
+                        class="w-full text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-primary"
+                        :style="dark ? 'background:#252840;color:#fff;border:1px solid #2d3154' : 'background:#f9fafb;color:#111827;border:1px solid #e5e7eb'">
+                    <option value="Active">Active</option>
+                    <option value="Pending">Pending</option>
+                    <option value="Inactive">Inactive</option>
+                </select>
             </div>
 
             <div>

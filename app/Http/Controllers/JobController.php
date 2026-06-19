@@ -5,8 +5,10 @@ namespace App\Http\Controllers;
 use App\Models\Job;
 use App\Models\Client;
 use App\Models\Quotation;
+use App\Models\Reminder;
 use App\Models\ActivityLog;
 use Illuminate\Http\Request;
+use Carbon\Carbon;
 
 class JobController extends Controller
 {
@@ -49,7 +51,7 @@ class JobController extends Controller
             'title'          => 'required|string|max:255',
             'client_id'      => 'required|exists:clients,id',
             'quotation_id'   => 'nullable|exists:quotations,id',
-            'type'           => 'required|in:Wedding,Portrait,Commercial,Event,Product,Other',
+            'type' => ['required', 'string', \Illuminate\Validation\Rule::in(\App\Models\Job::allTypes())],
             'event_date'     => 'nullable|date',
             'event_location' => 'nullable|string|max:255',
             'description'    => 'nullable|string',
@@ -61,6 +63,9 @@ class JobController extends Controller
         ]);
 
         $job = Job::create($validated);
+
+        // Auto reminder — event date එකට link වෙච්ච reminder එකක්
+        $this->createEventReminder($job);
 
         ActivityLog::log('created', 'Job', $job->id, $job->job_number,
             'New job created: ' . $job->title . ' for ' . $job->client->name,
@@ -89,7 +94,7 @@ class JobController extends Controller
             'title'          => 'required|string|max:255',
             'client_id'      => 'required|exists:clients,id',
             'quotation_id'   => 'nullable|exists:quotations,id',
-            'type'           => 'required|in:Wedding,Portrait,Commercial,Event,Product,Other',
+            'type' => ['required', 'string', \Illuminate\Validation\Rule::in(\App\Models\Job::allTypes())],
             'event_date'     => 'nullable|date',
             'event_location' => 'nullable|string|max:255',
             'description'    => 'nullable|string',
@@ -101,6 +106,9 @@ class JobController extends Controller
         ]);
 
         $job->update($validated);
+
+        // Event date එක වෙනස් වුණත් — linked reminder එක update/delete වෙනවා
+        $this->createEventReminder($job);
 
         ActivityLog::log('updated', 'Job', $job->id, $job->job_number,
             'Job updated: ' . $job->title, 'kanban', 'orange');
@@ -126,6 +134,9 @@ class JobController extends Controller
 
     public function destroy(Job $job)
     {
+        // මේ job එකේ auto reminder එකත් අයින් කරනවා
+        Reminder::where('source_type', 'job')->where('source_id', $job->id)->delete();
+
         $title = $job->title;
         $number = $job->job_number;
         $job->delete();
@@ -135,5 +146,45 @@ class JobController extends Controller
 
         return redirect()->route('jobs.index')
             ->with('success', 'Job deleted successfully!');
+    }
+
+    /**
+     * Job event date එකම remind_date විදිහට auto reminder.
+     * source_type/source_id වලින් link — date වෙනස් වුණොත් පරණ එක update වෙනවා (duplicate නැහැ).
+     * Notification bell + Due page එක දවස් 3කට කලින්ම මේක පෙන්නනවා.
+     */
+    private function createEventReminder(Job $job): void
+    {
+        // මේ job එකේ පරණ auto reminder එක හොයාගන්නවා
+        $existing = Reminder::where('source_type', 'job')
+            ->where('source_id', $job->id)
+            ->first();
+
+        // Event date නැත්නම් හෝ අතීතයේ නම් — පරණ reminder එක තිබුණොත් අයින් කරනවා
+        if (!$job->event_date || Carbon::parse($job->event_date)->lt(Carbon::today())) {
+            if ($existing) {
+                $existing->delete();
+            }
+            return;
+        }
+
+        $data = [
+            'source_type' => 'job',
+            'source_id'   => $job->id,
+            'title'       => 'Shoot: ' . $job->title,
+            'description' => 'Upcoming shoot/event for job ' . $job->job_number . '. Prepare gear and confirm details with client.',
+            'client_id'   => $job->client_id,
+            'type'        => 'Shoot',
+            'remind_date' => Carbon::parse($job->event_date)->toDateString(),
+            'remind_time' => null,
+            'status'      => 'Pending',
+            'priority'    => $job->priority ?? 'Medium',
+        ];
+
+        if ($existing) {
+            $existing->update($data);   // පරණ එක update — duplicate නැහැ
+        } else {
+            Reminder::create($data);
+        }
     }
 }

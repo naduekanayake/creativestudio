@@ -58,14 +58,17 @@
                     </select>
                 </div>
                 <div>
-                    <label class="text-gray-400 text-xs mb-1 block">Job Type *</label>
+                    <label class="text-gray-400 text-xs mb-1 block">Project Type *</label>
                     <select name="type" required
                             class="w-full text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-primary"
                             :style="dark ? 'background:#252840;color:#fff;border:1px solid #2d3154' : 'background:#f9fafb;color:#111827;border:1px solid #e5e7eb'">
-                        @foreach(['Wedding', 'Portrait', 'Commercial', 'Event', 'Product', 'Other'] as $type)
-                        <option value="{{ $type }}" {{ $job->type === $type ? 'selected' : '' }}>
-                            {{ $type }}
-                        </option>
+                        <option value="">Select project type...</option>
+                        @foreach(\App\Models\Job::$typeGroups as $group => $types)
+                        <optgroup label="{{ $group }}">
+                            @foreach($types as $type)
+                            <option value="{{ $type }}" {{ $job->type === $type ? 'selected' : '' }}>{{ $type }}</option>
+                            @endforeach
+                        </optgroup>
                         @endforeach
                     </select>
                 </div>

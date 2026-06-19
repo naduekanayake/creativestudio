@@ -11,6 +11,7 @@ class Reminder extends Model
     use HasFactory;
 
     protected $fillable = [
+        'source_type', 'source_id',
         'title', 'description', 'client_id',
         'type', 'remind_date', 'remind_time',
         'status', 'priority',
@@ -83,7 +84,6 @@ class Reminder extends Model
         if (!$this->client || !$this->client->phone) {
             return null;
         }
-        // Sri Lankan number formatting: 0771234567 → 94771234567
         $phone = preg_replace('/[^0-9]/', '', $this->client->phone);
         if (str_starts_with($phone, '0')) {
             $phone = '94' . substr($phone, 1);

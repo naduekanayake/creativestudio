@@ -12,11 +12,11 @@ class ClientController extends Controller
     {
         $clients = Client::latest()->paginate(15);
         $stats = [
-    'total'    => Client::count(),
-    'active'   => Client::where('status', 'Active')->count(),
-    'inactive' => Client::where('status', 'Inactive')->count(),
-    'pending'  => Client::where('status', 'Pending')->count(),
-];
+            'total'    => Client::count(),
+            'active'   => Client::where('status', 'Active')->count(),
+            'inactive' => Client::where('status', 'Inactive')->count(),
+            'pending'  => Client::where('status', 'Pending')->count(),
+        ];
         return view('clients.index', compact('clients', 'stats'));
     }
 
@@ -28,16 +28,17 @@ class ClientController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name'    => 'required|string|max:255',
-            'email'   => 'nullable|email|max:255',
-            'phone'   => 'nullable|string|max:20',
-            'company' => 'nullable|string|max:255',
-            'type'    => 'nullable|string',
-            'address' => 'nullable|string',
-            'city'    => 'nullable|string|max:100',
-            'website' => 'nullable|string|max:255',
-            'notes'   => 'nullable|string',
-            'status'  => 'nullable|string',
+            'name'        => 'required|string|max:255',
+            'email'       => 'nullable|email|max:255',
+            'phone'       => 'nullable|string|max:20',
+            'company'     => 'nullable|string|max:255',
+            'type'        => 'nullable|string',
+            'lead_source' => 'nullable|string|max:100',
+            'address'     => 'nullable|string',
+            'city'        => 'nullable|string|max:100',
+            'website'     => 'nullable|string|max:255',
+            'notes'       => 'nullable|string',
+            'status'      => 'nullable|string',
         ]);
 
         $client = Client::create($validated);
@@ -63,16 +64,17 @@ class ClientController extends Controller
     public function update(Request $request, Client $client)
     {
         $validated = $request->validate([
-            'name'    => 'required|string|max:255',
-            'email'   => 'nullable|email|max:255',
-            'phone'   => 'nullable|string|max:20',
-            'company' => 'nullable|string|max:255',
-            'type'    => 'nullable|string',
-            'address' => 'nullable|string',
-            'city'    => 'nullable|string|max:100',
-            'website' => 'nullable|string|max:255',
-            'notes'   => 'nullable|string',
-            'status'  => 'nullable|string',
+            'name'        => 'required|string|max:255',
+            'email'       => 'nullable|email|max:255',
+            'phone'       => 'nullable|string|max:20',
+            'company'     => 'nullable|string|max:255',
+            'type'        => 'nullable|string',
+            'lead_source' => 'nullable|string|max:100',
+            'address'     => 'nullable|string',
+            'city'        => 'nullable|string|max:100',
+            'website'     => 'nullable|string|max:255',
+            'notes'       => 'nullable|string',
+            'status'      => 'nullable|string',
         ]);
 
         $client->update($validated);
