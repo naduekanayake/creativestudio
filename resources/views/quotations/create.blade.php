@@ -111,13 +111,23 @@
         <div x-show="step === 2" class="rounded-xl p-5" :style="dark ? 'background:#1a1d2e;border:1px solid #252840' : 'background:#fff;border:1px solid #e5e7eb'">
             <div class="flex items-center justify-between mb-4">
                 <h3 class="font-semibold" :class="dark ? 'text-white' : 'text-gray-900'">Services & Items</h3>
-                <button type="button" @click="addItem()"
-                        class="bg-primary hover:bg-primary-hover text-white text-xs font-medium px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1">
-                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                    </svg>
-                    Add Item
-                </button>
+                <div class="flex items-center gap-2">
+                    <select @change="loadPackage($event.target.value); $event.target.value=''"
+                            class="text-xs rounded-lg px-3 py-1.5 focus:outline-none focus:border-primary"
+                            :style="dark ? 'background:#252840;color:#d1d5db;border:1px solid #2d3154' : 'background:#f9fafb;color:#374151;border:1px solid #e5e7eb'">
+                        <option value="">+ Load from Package</option>
+                        @foreach($packages as $package)
+                        <option value="{{ $package->id }}">{{ $package->name }} — Rs. {{ number_format($package->price) }}</option>
+                        @endforeach
+                    </select>
+                    <button type="button" @click="addItem()"
+                            class="bg-primary hover:bg-primary-hover text-white text-xs font-medium px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                        </svg>
+                        Add Item
+                    </button>
+                </div>
             </div>
 
             <div class="space-y-2 mb-4">
@@ -390,12 +400,24 @@ Delivery time: 4-6 weeks after the event."></textarea>
             'city' => $c->city,
         ];
     })->values()->toArray();
+
+    $packagesArray = $packages->map(function($p) {
+        return [
+            'id' => $p->id,
+            'name' => $p->name,
+            'price' => (float) $p->price,
+            'description' => $p->description,
+            'features' => $p->features ?? [],
+        ];
+    })->values()->toArray();
 @endphp
 
 <script type="application/json" id="clients-data">@json($clientsArray)</script>
+<script type="application/json" id="packages-data">@json($packagesArray)</script>
 
 <script>
     var clientsData = JSON.parse(document.getElementById('clients-data').textContent);
+    var packagesData = JSON.parse(document.getElementById('packages-data').textContent);
 
     function quotationForm() {
         return {
@@ -443,6 +465,32 @@ Delivery time: 4-6 weeks after the event."></textarea>
                     this.form.client_address = '';
                     this.form.client_city = '';
                 }
+            },
+
+            loadPackage: function(packageId) {
+                if (!packageId) return;
+                var pkg = null;
+                for (var i = 0; i < packagesData.length; i++) {
+                    if (packagesData[i].id === parseInt(packageId)) { pkg = packagesData[i]; break; }
+                }
+                if (!pkg) return;
+
+                var features = (pkg.features && pkg.features.length > 0) ? pkg.features.join(', ') : (pkg.description || '');
+                var newItem = {
+                    item_name: pkg.name,
+                    description: features,
+                    qty: 1,
+                    unit_price: pkg.price
+                };
+
+                // දැනට හිස් item එකක් විතරයි නම් replace, නැත්නම් append
+                var hasContent = this.form.items.some(function(it) { return it.item_name; });
+                if (hasContent) {
+                    this.form.items.push(newItem);
+                } else {
+                    this.form.items = [newItem];
+                }
+                this.calculateTotals();
             },
 
             addItem: function() {

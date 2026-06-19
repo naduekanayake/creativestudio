@@ -224,18 +224,18 @@
 
             <div class="grid grid-cols-2 gap-4">
                 <div>
-                    <label class="text-gray-400 text-xs mb-1 block">Email</label>
-                    <input type="email" name="email"
-                           class="w-full text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-primary"
-                           :style="dark ? 'background:#252840;color:#fff;border:1px solid #2d3154' : 'background:#f9fafb;color:#111827;border:1px solid #e5e7eb'"
-                           placeholder="email@example.com"/>
-                </div>
-                <div>
                     <label class="text-gray-400 text-xs mb-1 block">Phone *</label>
                     <input type="text" name="phone" required
                            class="w-full text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-primary"
                            :style="dark ? 'background:#252840;color:#fff;border:1px solid #2d3154' : 'background:#f9fafb;color:#111827;border:1px solid #e5e7eb'"
                            placeholder="+94 77 123 4567"/>
+                </div>
+                <div>
+                    <label class="text-gray-400 text-xs mb-1 block">Email</label>
+                    <input type="email" name="email"
+                           class="w-full text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-primary"
+                           :style="dark ? 'background:#252840;color:#fff;border:1px solid #2d3154' : 'background:#f9fafb;color:#111827;border:1px solid #e5e7eb'"
+                           placeholder="email@example.com"/>
                 </div>
             </div>
 
@@ -252,37 +252,12 @@
                     </select>
                 </div>
                 <div>
-                    <label class="text-gray-400 text-xs mb-1 block">Company Name</label>
+                    <label class="text-gray-400 text-xs mb-1 block">Company <span class="text-gray-500">(optional)</span></label>
                     <input type="text" name="company"
                            class="w-full text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-primary"
                            :style="dark ? 'background:#252840;color:#fff;border:1px solid #2d3154' : 'background:#f9fafb;color:#111827;border:1px solid #e5e7eb'"
                            placeholder="Company (if any)"/>
                 </div>
-            </div>
-
-            <div class="grid grid-cols-2 gap-4">
-                <div>
-                    <label class="text-gray-400 text-xs mb-1 block">City</label>
-                    <input type="text" name="city"
-                           class="w-full text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-primary"
-                           :style="dark ? 'background:#252840;color:#fff;border:1px solid #2d3154' : 'background:#f9fafb;color:#111827;border:1px solid #e5e7eb'"
-                           placeholder="City"/>
-                </div>
-                <div>
-                    <label class="text-gray-400 text-xs mb-1 block">Website</label>
-                    <input type="text" name="website"
-                           class="w-full text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-primary"
-                           :style="dark ? 'background:#252840;color:#fff;border:1px solid #2d3154' : 'background:#f9fafb;color:#111827;border:1px solid #e5e7eb'"
-                           placeholder="www.example.com"/>
-                </div>
-            </div>
-
-            <div>
-                <label class="text-gray-400 text-xs mb-1 block">Address</label>
-                <input type="text" name="address"
-                       class="w-full text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-primary"
-                       :style="dark ? 'background:#252840;color:#fff;border:1px solid #2d3154' : 'background:#f9fafb;color:#111827;border:1px solid #e5e7eb'"
-                       placeholder="Full address"/>
             </div>
 
             <div>

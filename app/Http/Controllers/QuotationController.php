@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Quotation;
 use App\Models\QuotationItem;
 use App\Models\Client;
+use App\Models\Package;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -27,8 +28,9 @@ class QuotationController extends Controller
     public function create()
     {
         $clients = Client::orderBy('name')->get();
+        $packages = Package::orderBy('name')->get();
         $nextNumber = 'QUO-' . date('Y') . '-' . str_pad((Quotation::count() + 1), 4, '0', STR_PAD_LEFT);
-        return view('quotations.create', compact('clients', 'nextNumber'));
+        return view('quotations.create', compact('clients', 'packages', 'nextNumber'));
     }
 
     public function store(Request $request)
