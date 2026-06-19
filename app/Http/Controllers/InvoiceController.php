@@ -6,6 +6,7 @@ use App\Models\Invoice;
 use App\Models\InvoiceItem;
 use App\Models\Client;
 use App\Models\Quotation;
+use App\Models\Package;
 use App\Models\Reminder;
 use App\Models\ActivityLog;
 use Illuminate\Http\Request;
@@ -33,6 +34,7 @@ class InvoiceController extends Controller
     public function create(Request $request)
     {
         $clients = Client::orderBy('name')->get();
+        $packages = Package::orderBy('name')->get();
         $nextNumber = 'INV-' . date('Y') . '-' . str_pad((Invoice::count() + 1), 4, '0', STR_PAD_LEFT);
 
         // Quotation එකකින් invoice එකක් හදනවා නම් (?quotation_id=X)
@@ -41,7 +43,7 @@ class InvoiceController extends Controller
             $fromQuotation = Quotation::with('client')->find($request->quotation_id);
         }
 
-        return view('invoices.create', compact('clients', 'nextNumber', 'fromQuotation'));
+        return view('invoices.create', compact('clients', 'packages', 'nextNumber', 'fromQuotation'));
     }
 
     public function store(Request $request)
