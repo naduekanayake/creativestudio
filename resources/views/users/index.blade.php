@@ -40,8 +40,12 @@
         {{-- Avatar & Info --}}
         <div class="flex items-start justify-between mb-4">
             <div class="flex items-center gap-3">
-                <div class="w-12 h-12 bg-primary rounded-xl flex items-center justify-center flex-shrink-0">
+                <div class="w-12 h-12 bg-primary rounded-xl flex items-center justify-center flex-shrink-0 overflow-hidden">
+                    @if($user->avatar)
+                    <img src="{{ $user->avatar_url }}" class="w-full h-full object-cover"/>
+                    @else
                     <span class="text-white font-bold text-lg">{{ substr($user->name, 0, 1) }}</span>
+                    @endif
                 </div>
                 <div>
                     <p class="font-semibold text-sm" :class="dark ? 'text-white' : 'text-gray-900'">{{ $user->name }}</p>
@@ -78,13 +82,13 @@
 
         {{-- Actions --}}
         <div class="flex items-center gap-2 pt-3" :style="dark ? 'border-top:1px solid #252840' : 'border-top:1px solid #e5e7eb'">
-            <a href="{{ route('users.edit', $user) }}"
-               class="flex-1 text-center text-xs font-medium py-1.5 rounded-lg transition-colors"
-               :class="dark ? 'bg-dark-700 hover:bg-dark-600 text-gray-300' : 'bg-gray-100 hover:bg-gray-200 text-gray-700'">
-                Edit
-            </a>
-
             @if($user->id !== auth()->id())
+                <a href="{{ route('users.edit', $user) }}"
+                   class="flex-1 text-center text-xs font-medium py-1.5 rounded-lg transition-colors"
+                   :class="dark ? 'bg-dark-700 hover:bg-dark-600 text-gray-300' : 'bg-gray-100 hover:bg-gray-200 text-gray-700'">
+                    Edit
+                </a>
+
                 <form method="POST" action="{{ route('users.toggle-status', $user) }}" class="flex-1">
                     @csrf
                     @method('PATCH')
@@ -106,7 +110,10 @@
                     </button>
                 </form>
             @else
-                <span class="flex-1 text-center text-xs text-gray-600 py-1.5">You</span>
+                <a href="{{ route('profile.edit') }}"
+                   class="flex-1 text-center text-xs font-medium py-1.5 rounded-lg transition-colors bg-primary/20 text-primary hover:bg-primary/30">
+                    You · Edit in My Profile
+                </a>
             @endif
         </div>
     </div>
