@@ -59,6 +59,16 @@ class ReportController extends Controller
             ->map(fn($j) => ['name' => $j->type, 'count' => $j->count])
             ->values()->toArray();
 
+        // Leads by Source — marketing analytics
+        $leadsBySource = Client::whereNotNull('lead_source')
+            ->where('lead_source', '!=', '')
+            ->selectRaw('lead_source, COUNT(*) as count')
+            ->groupBy('lead_source')
+            ->orderByDesc('count')
+            ->get()
+            ->map(fn($c) => ['name' => $c->lead_source, 'count' => $c->count])
+            ->values()->toArray();
+
         // Top Clients by revenue
         $topClients = Client::withSum(['payments' => function ($q) {
             $q->where('status', 'Completed');
@@ -83,7 +93,7 @@ class ReportController extends Controller
 
         return view('reports.index', compact(
             'stats', 'monthlyRevenue', 'monthlyLabels',
-            'paymentMethods', 'jobsByStatus', 'jobsByType',
+            'paymentMethods', 'jobsByStatus', 'jobsByType', 'leadsBySource',
             'topClients', 'recentPayments', 'invoiceStats'
         ));
     }

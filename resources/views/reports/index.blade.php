@@ -153,6 +153,42 @@
     </div>
 </div>
 
+{{-- Leads by Source --}}
+<div class="grid grid-cols-3 gap-4 mb-4">
+    <div class="rounded-xl p-5" :style="dark ? 'background:#1a1d2e;border:1px solid #252840' : 'background:#fff;border:1px solid #e5e7eb'">
+        <h3 class="font-semibold mb-4" :class="dark ? 'text-white' : 'text-gray-900'">Leads by Source</h3>
+        <div id="leadSourceChart"></div>
+    </div>
+
+    {{-- Lead Source Breakdown (list) --}}
+    <div class="col-span-2 rounded-xl p-5" :style="dark ? 'background:#1a1d2e;border:1px solid #252840' : 'background:#fff;border:1px solid #e5e7eb'">
+        <h3 class="font-semibold mb-4" :class="dark ? 'text-white' : 'text-gray-900'">Marketing Channels — Where Clients Come From</h3>
+        <div class="space-y-3">
+            @forelse($leadsBySource as $index => $lead)
+            @php
+                $maxLeads = collect($leadsBySource)->max('count') ?: 1;
+                $width = round(($lead['count'] / $maxLeads) * 100);
+                $barColors = ['bg-blue-500','bg-pink-500','bg-purple-500','bg-orange-500','bg-teal-500','bg-red-500','bg-yellow-500','bg-cyan-500','bg-green-500','bg-indigo-500','bg-rose-500','bg-gray-500'];
+                $barColor = $barColors[$index % count($barColors)];
+            @endphp
+            <div class="flex items-center gap-3">
+                <div class="flex-1">
+                    <div class="flex justify-between mb-1">
+                        <span class="text-sm" :class="dark ? 'text-white' : 'text-gray-900'">{{ $lead['name'] }}</span>
+                        <span class="text-sm font-medium" :class="dark ? 'text-white' : 'text-gray-900'">{{ $lead['count'] }} {{ $lead['count'] == 1 ? 'client' : 'clients' }}</span>
+                    </div>
+                    <div class="h-1.5 rounded-full" :style="dark ? 'background:#252840' : 'background:#f3f4f6'">
+                        <div class="h-1.5 rounded-full {{ $barColor }}" style="width: {{ $width }}%"></div>
+                    </div>
+                </div>
+            </div>
+            @empty
+            <p class="text-gray-500 text-sm">No lead source data yet. Add clients with a lead source to see analytics.</p>
+            @endforelse
+        </div>
+    </div>
+</div>
+
 {{-- Bottom Row --}}
 <div class="grid grid-cols-2 gap-4">
 
@@ -224,6 +260,8 @@
     $jobTypeData = json_encode(array_column($jobsByType, 'count'));
     $payMethodLabels = json_encode(array_column($paymentMethods, 'name'));
     $payMethodData = json_encode(array_column($paymentMethods, 'total'));
+    $leadSourceLabels = json_encode(array_column($leadsBySource, 'name'));
+    $leadSourceData = json_encode(array_column($leadsBySource, 'count'));
 @endphp
 
 <script>
@@ -290,6 +328,18 @@ new ApexCharts(document.getElementById('paymentMethodChart'), {
     plotOptions: { bar: { borderRadius: 4, horizontal: true } },
     theme: { mode: 'dark' },
     tooltip: { theme: 'dark', y: { formatter: (v) => 'Rs. ' + v.toLocaleString() } },
+}).render();
+
+// Leads by Source Donut
+new ApexCharts(document.getElementById('leadSourceChart'), {
+    chart: { type: 'donut', height: 240, background: 'transparent' },
+    series: {{ $leadSourceData }},
+    labels: {{ $leadSourceLabels }},
+    colors: ['#3b82f6', '#ec4899', '#a855f7', '#f97316', '#14b8a6', '#ef4444', '#eab308', '#06b6d4', '#22c55e', '#6366f1', '#f43f5e', '#6b7280'],
+    legend: { position: 'bottom', labels: { colors: '#9ca3af' }, fontSize: '11px' },
+    dataLabels: { enabled: true, style: { fontSize: '10px' } },
+    theme: { mode: 'dark' },
+    tooltip: { theme: 'dark' },
 }).render();
 </script>
 
