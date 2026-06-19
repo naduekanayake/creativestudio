@@ -23,8 +23,12 @@
     {{-- Navigation --}}
     <nav class="flex-1 overflow-y-auto py-3 px-2 space-y-0.5">
 
+        {{-- All roles --}}
         <x-nav-item href="{{ route('dashboard') }}" icon="home" label="Dashboard"/>
         <x-nav-item href="{{ route('clients.index') }}" icon="users" label="Clients"/>
+
+        {{-- Admin + Super Admin only --}}
+        @if(auth()->check() && auth()->user()->isAdmin())
         <x-nav-item href="{{ route('packages.index') }}" icon="package" label="Packages"/>
 
         {{-- Quotations --}}
@@ -40,6 +44,9 @@
         </x-nav-dropdown>
 
         <x-nav-item href="{{ route('payments.index') }}" icon="credit-card" label="Payments"/>
+        @endif
+
+        {{-- All roles --}}
         <x-nav-item href="{{ route('jobs.index') }}" icon="kanban" label="Job Management"/>
         <x-nav-item href="{{ route('deliverables.index') }}" icon="truck" label="Deliverables"/>
         <x-nav-item href="{{ route('calendar') }}" icon="calendar" label="Calendar"/>
@@ -47,6 +54,8 @@
         <x-nav-item href="{{ route('email-sharing') }}" icon="mail" label="Email Sharing"/>
         <x-nav-item href="{{ route('reminders.due') }}" icon="bell" label="Reminders"/>
 
+        {{-- Admin + Super Admin only --}}
+        @if(auth()->check() && auth()->user()->isAdmin())
         {{-- Reports --}}
         <x-nav-dropdown label="Reports" icon="chart">
             <x-nav-sub-item href="{{ route('reports.index') }}" label="Overview"/>
@@ -56,12 +65,13 @@
         <x-nav-item href="{{ route('activity-log') }}" icon="activity" label="Activity Log"/>
         <x-nav-item href="{{ route('expenses.index') }}" icon="dollar" label="Expenses"/>
         <x-nav-item href="{{ route('contracts.index') }}" icon="file-text" label="Contracts"/>
-
-        @if(auth()->check() && auth()->user()->isAdmin())
         <x-nav-item href="{{ route('users.index') }}" icon="users" label="Users"/>
         @endif
 
+        {{-- Super Admin only --}}
+        @if(auth()->check() && auth()->user()->isSuperAdmin())
         <x-nav-item href="{{ route('settings.index') }}" icon="settings" label="Settings"/>
+        @endif
 
     </nav>
 

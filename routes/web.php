@@ -26,62 +26,85 @@ Route::get('/', fn() => redirect()->route('login'));
 
 Route::middleware('auth')->group(function () {
 
+    // ===== ALL ROLES (super_admin, admin, staff) =====
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::patch('/dashboard/widgets', [DashboardController::class, 'updateWidgets'])->name('dashboard.widgets');
 
+    // Clients — staff can view but not delete (delete blocked below)
     Route::resource('clients', ClientController::class);
-    Route::resource('packages', PackageController::class);
 
-    Route::resource('quotations', QuotationController::class);
-    Route::patch('/quotations/{quotation}/status', [QuotationController::class, 'updateStatus'])->name('quotations.update-status');
-
-    Route::resource('invoices', InvoiceController::class);
-    Route::patch('/invoices/{invoice}/status', [InvoiceController::class, 'updateStatus'])->name('invoices.update-status');
-
-    Route::resource('payments', PaymentController::class);
-
+    // Jobs — operational, all roles
     Route::resource('jobs', JobController::class);
     Route::patch('/jobs/{job}/status', [JobController::class, 'updateStatus'])->name('jobs.update-status');
 
+    // Deliverables — all roles
     Route::resource('deliverables', DeliverableController::class);
     Route::patch('/deliverables/{deliverable}/status', [DeliverableController::class, 'updateStatus'])->name('deliverables.update-status');
 
+    // Calendar — all roles
     Route::get('/calendar', [CalendarController::class, 'index'])->name('calendar');
     Route::get('/calendar/events', [CalendarController::class, 'events'])->name('calendar.events');
 
-    Route::get('/whatsapp', [WhatsAppController::class, 'index'])->name('whatsapp');
-    Route::get('/email-sharing', [EmailSharingController::class, 'index'])->name('email-sharing');
-
-    // Reminders — 'due' route MUST come before resource route
+    // Reminders — all roles ('due' MUST come before resource)
     Route::get('/reminders/due', [ReminderController::class, 'due'])->name('reminders.due');
     Route::resource('reminders', ReminderController::class)->except(['show']);
     Route::patch('/reminders/{reminder}/status', [ReminderController::class, 'updateStatus'])->name('reminders.update-status');
 
-    Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
-    Route::get('/reports/financial', [ReportController::class, 'financial'])->name('reports.financial');
+    // WhatsApp & Email sharing — all roles
+    Route::get('/whatsapp', [WhatsAppController::class, 'index'])->name('whatsapp');
+    Route::get('/email-sharing', [EmailSharingController::class, 'index'])->name('email-sharing');
 
-    Route::get('/activity-log', [ActivityLogController::class, 'index'])->name('activity-log');
-
-    Route::resource('expenses', ExpenseController::class);
-
-    Route::resource('contracts', ContractController::class);
-    Route::patch('/contracts/{contract}/status', [ContractController::class, 'updateStatus'])->name('contracts.update-status');
-
-    Route::get('/settings', [SettingController::class, 'index'])->name('settings.index');
-    Route::patch('/settings', [SettingController::class, 'update'])->name('settings.update');
-
+    // Search — all roles
     Route::get('/search', [SearchController::class, 'search'])->name('search');
 
-    // Profile routes
+    // Profile — all roles (own profile)
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::patch('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password');
     Route::delete('/profile', fn() => redirect()->route('dashboard'))->name('profile.destroy');
 
-    // Admin only
+
+    // ===== SUPER ADMIN + ADMIN ONLY (financial & management) =====
     Route::middleware('role:super_admin,admin')->group(function () {
+
+        // Packages
+        Route::resource('packages', PackageController::class);
+
+        // Quotations
+        Route::resource('quotations', QuotationController::class);
+        Route::patch('/quotations/{quotation}/status', [QuotationController::class, 'updateStatus'])->name('quotations.update-status');
+
+        // Invoices
+        Route::resource('invoices', InvoiceController::class);
+        Route::patch('/invoices/{invoice}/status', [InvoiceController::class, 'updateStatus'])->name('invoices.update-status');
+
+        // Payments
+        Route::resource('payments', PaymentController::class);
+
+        // Expenses
+        Route::resource('expenses', ExpenseController::class);
+
+        // Contracts
+        Route::resource('contracts', ContractController::class);
+        Route::patch('/contracts/{contract}/status', [ContractController::class, 'updateStatus'])->name('contracts.update-status');
+
+        // Reports
+        Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
+        Route::get('/reports/financial', [ReportController::class, 'financial'])->name('reports.financial');
+
+        // Activity Log
+        Route::get('/activity-log', [ActivityLogController::class, 'index'])->name('activity-log');
+
+        // User Management
         Route::resource('users', UserController::class)->except(['show']);
         Route::patch('/users/{user}/toggle-status', [UserController::class, 'toggleStatus'])->name('users.toggle-status');
+    });
+
+
+    // ===== SUPER ADMIN ONLY (system settings) =====
+    Route::middleware('role:super_admin')->group(function () {
+        Route::get('/settings', [SettingController::class, 'index'])->name('settings.index');
+        Route::patch('/settings', [SettingController::class, 'update'])->name('settings.update');
     });
 
 });
