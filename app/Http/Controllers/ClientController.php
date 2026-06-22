@@ -53,7 +53,68 @@ class ClientController extends Controller
     public function show(Client $client)
     {
         $client->load(['quotations', 'invoices', 'payments', 'jobs']);
-        return view('clients.show', compact('client'));
+
+        // ===== Client stats =====
+        $totalProjects = $client->jobs->count();
+        $totalRevenue = $client->payments->where('status', 'Completed')->sum('amount');
+        $dueAmount = $client->invoices
+            ->whereIn('payment_status', ['Unpaid', 'Partial'])
+            ->sum(fn($inv) => $inv->total_amount - $inv->paid_amount);
+
+        // ===== Timeline — ඔක්කොම activities එක array එකකට, date order =====
+        $timeline = collect();
+
+        foreach ($client->quotations as $q) {
+            $timeline->push([
+                'type'  => 'quotation',
+                'date'  => $q->issue_date ?? $q->created_at,
+                'title' => 'Quotation ' . $q->quotation_number,
+                'sub'   => 'Rs. ' . number_format($q->total_amount, 2) . ' · ' . $q->status,
+                'url'   => route('quotations.show', $q),
+                'color' => 'blue',
+            ]);
+        }
+        foreach ($client->jobs as $j) {
+            $timeline->push([
+                'type'  => 'job',
+                'date'  => $j->event_date ?? $j->created_at,
+                'title' => $j->title,
+                'sub'   => ($j->job_number ?? '') . ' · ' . $j->status,
+                'url'   => route('jobs.show', $j),
+                'color' => 'pink',
+            ]);
+        }
+        foreach ($client->invoices as $inv) {
+            $timeline->push([
+                'type'  => 'invoice',
+                'date'  => $inv->issue_date ?? $inv->created_at,
+                'title' => 'Invoice ' . $inv->invoice_number,
+                'sub'   => 'Rs. ' . number_format($inv->total_amount, 2) . ' · ' . $inv->payment_status,
+                'url'   => route('invoices.show', $inv),
+                'color' => 'orange',
+            ]);
+        }
+        foreach ($client->payments as $p) {
+            $timeline->push([
+                'type'  => 'payment',
+                'date'  => $p->payment_date ?? $p->created_at,
+                'title' => 'Payment received',
+                'sub'   => 'Rs. ' . number_format($p->amount, 2) . ' · ' . $p->status,
+                'url'   => route('payments.index'),
+                'color' => 'green',
+            ]);
+        }
+
+        // අලුත්ම ඉස්සරහට (descending)
+        $timeline = $timeline->sortByDesc('date')->values();
+
+        $clientStats = [
+            'total_projects' => $totalProjects,
+            'total_revenue'  => $totalRevenue,
+            'due_amount'     => $dueAmount,
+        ];
+
+        return view('clients.show', compact('client', 'clientStats', 'timeline'));
     }
 
     public function edit(Client $client)
