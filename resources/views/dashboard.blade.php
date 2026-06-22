@@ -5,10 +5,10 @@
 @section('content')
 
 @php
-    // Default: all visible. If user saved preferences, use those.
+    $currency = \App\Models\Setting::get('currency', 'Rs.');
     $widgets = auth()->user()->dashboard_widgets;
     if (empty($widgets)) {
-        $widgets = ['stats', 'recent_jobs', 'quick_stats', 'recent_activity'];
+        $widgets = ['stats', 'analytics', 'recent_jobs', 'quick_stats', 'recent_activity'];
     }
     $show = fn($key) => in_array($key, $widgets);
 @endphp
@@ -47,7 +47,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
                 </svg>
             </div>
-            <p class="text-2xl font-bold" :class="dark ? 'text-white' : 'text-gray-900'">{{ \App\Models\Client::count() }}</p>
+            <p class="text-2xl font-bold" :class="dark ? 'text-white' : 'text-gray-900'">{{ $analytics['total_clients'] }}</p>
             <p class="text-gray-400 text-xs mt-0.5">Total Clients</p>
         </div>
         <div class="rounded-xl p-4" :style="dark ? 'background:#1a1d2e;border:1px solid #252840' : 'background:#fff;border:1px solid #e5e7eb'">
@@ -56,7 +56,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
                 </svg>
             </div>
-            <p class="text-2xl font-bold" :class="dark ? 'text-white' : 'text-gray-900'">{{ \App\Models\Job::count() }}</p>
+            <p class="text-2xl font-bold" :class="dark ? 'text-white' : 'text-gray-900'">{{ $analytics['total_jobs'] }}</p>
             <p class="text-gray-400 text-xs mt-0.5">Total Jobs</p>
         </div>
         <div class="rounded-xl p-4" :style="dark ? 'background:#1a1d2e;border:1px solid #252840' : 'background:#fff;border:1px solid #e5e7eb'">
@@ -65,7 +65,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                 </svg>
             </div>
-            <p class="text-2xl font-bold text-green-400">Rs. {{ number_format(\App\Models\Payment::where('status', 'Completed')->sum('amount')) }}</p>
+            <p class="text-2xl font-bold text-green-400">{{ $currency }} {{ number_format($analytics['total_revenue']) }}</p>
             <p class="text-gray-400 text-xs mt-0.5">Total Revenue</p>
         </div>
         <div class="rounded-xl p-4" :style="dark ? 'background:#1a1d2e;border:1px solid #252840' : 'background:#fff;border:1px solid #e5e7eb'">
@@ -74,9 +74,79 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                 </svg>
             </div>
-            <p class="text-2xl font-bold text-orange-400">{{ \App\Models\Invoice::whereIn('payment_status', ['Unpaid', 'Partial'])->count() }}</p>
+            <p class="text-2xl font-bold text-orange-400">{{ $analytics['pending_invoices'] }}</p>
             <p class="text-gray-400 text-xs mt-0.5">Pending Invoices</p>
         </div>
+    </div>
+    @endif
+
+    {{-- Analytics --}}
+    @if($show('analytics'))
+    {{-- This Month Summary Cards --}}
+    <div class="grid grid-cols-4 gap-4 mb-4">
+        <div class="rounded-xl p-4" :style="dark ? 'background:#1a1d2e;border:1px solid #252840' : 'background:#fff;border:1px solid #e5e7eb'">
+            <p class="text-gray-400 text-xs mb-1">THIS MONTH INCOME</p>
+            <p class="text-xl font-bold text-green-400">{{ $currency }} {{ number_format($analytics['month_income']) }}</p>
+        </div>
+        <div class="rounded-xl p-4" :style="dark ? 'background:#1a1d2e;border:1px solid #252840' : 'background:#fff;border:1px solid #e5e7eb'">
+            <p class="text-gray-400 text-xs mb-1">THIS MONTH EXPENSE</p>
+            <p class="text-xl font-bold text-red-400">{{ $currency }} {{ number_format($analytics['month_expense']) }}</p>
+        </div>
+        <div class="rounded-xl p-4" :style="dark ? 'background:#1a1d2e;border:1px solid #252840' : 'background:#fff;border:1px solid #e5e7eb'">
+            <p class="text-gray-400 text-xs mb-1">THIS MONTH PROFIT</p>
+            <p class="text-xl font-bold {{ $analytics['month_profit'] >= 0 ? 'text-green-400' : 'text-red-400' }}">{{ $currency }} {{ number_format($analytics['month_profit']) }}</p>
+        </div>
+        <div class="rounded-xl p-4" :style="dark ? 'background:#1a1d2e;border:1px solid #252840' : 'background:#fff;border:1px solid #e5e7eb'">
+            <p class="text-gray-400 text-xs mb-1">PENDING PAYMENTS</p>
+            <p class="text-xl font-bold text-orange-400">{{ $currency }} {{ number_format($analytics['pending_payments_total']) }}</p>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-3 gap-4 mb-4">
+        {{-- Income vs Expense Chart --}}
+        <div class="col-span-2 rounded-xl p-4" :style="dark ? 'background:#1a1d2e;border:1px solid #252840' : 'background:#fff;border:1px solid #e5e7eb'">
+            <h3 class="font-semibold text-sm mb-4" :class="dark ? 'text-white' : 'text-gray-900'">Income vs Expense (Last 6 Months)</h3>
+            <div id="incomeExpenseChart"></div>
+        </div>
+
+        {{-- Side metrics --}}
+        <div class="space-y-4">
+            {{-- Conversion Rate --}}
+            <div class="rounded-xl p-4" :style="dark ? 'background:#1a1d2e;border:1px solid #252840' : 'background:#fff;border:1px solid #e5e7eb'">
+                <p class="text-gray-400 text-xs mb-1">QUOTATION CONVERSION</p>
+                <p class="text-2xl font-bold text-primary">{{ $analytics['conversion_rate'] }}%</p>
+                <p class="text-gray-500 text-xs mt-1">{{ $analytics['accepted_quotations'] }} of {{ $analytics['total_quotations'] }} accepted</p>
+            </div>
+            {{-- Overdue --}}
+            <div class="rounded-xl p-4" :style="dark ? 'background:#1a1d2e;border:1px solid #252840' : 'background:#fff;border:1px solid #e5e7eb'">
+                <p class="text-gray-400 text-xs mb-1">OVERDUE INVOICES</p>
+                <p class="text-2xl font-bold {{ $analytics['overdue_invoices'] > 0 ? 'text-red-400' : 'text-green-400' }}">{{ $analytics['overdue_invoices'] }}</p>
+                <p class="text-gray-500 text-xs mt-1">Past due date</p>
+            </div>
+        </div>
+    </div>
+
+    {{-- Upcoming Events --}}
+    <div class="rounded-xl mb-4" :style="dark ? 'background:#1a1d2e;border:1px solid #252840' : 'background:#fff;border:1px solid #e5e7eb'">
+        <div class="p-4 flex items-center justify-between" :style="dark ? 'border-bottom:1px solid #252840' : 'border-bottom:1px solid #e5e7eb'">
+            <h3 class="font-semibold text-sm" :class="dark ? 'text-white' : 'text-gray-900'">Upcoming Events (Next 30 Days)</h3>
+            <a href="{{ route('calendar') }}" class="text-xs text-primary hover:underline">Calendar</a>
+        </div>
+        @forelse($analytics['upcoming_events'] as $event)
+        <div class="px-4 py-3 flex items-center gap-3" :style="dark ? 'border-bottom:1px solid #252840' : 'border-bottom:1px solid #f3f4f6'">
+            <div class="w-10 h-10 bg-primary/20 rounded-lg flex flex-col items-center justify-center flex-shrink-0">
+                <span class="text-xs font-bold text-primary leading-none">{{ $event->event_date->format('d') }}</span>
+                <span class="text-[10px] text-primary leading-none mt-0.5">{{ $event->event_date->format('M') }}</span>
+            </div>
+            <div class="flex-1 min-w-0">
+                <p class="text-sm font-medium truncate" :class="dark ? 'text-white' : 'text-gray-900'">{{ $event->title }}</p>
+                <p class="text-xs text-gray-500">{{ $event->client->name ?? '-' }} · {{ $event->type ?? 'Event' }}</p>
+            </div>
+            <span class="px-2 py-0.5 rounded-full text-xs {{ $event->status_color }}">{{ $event->status }}</span>
+        </div>
+        @empty
+        <div class="px-4 py-6 text-center text-gray-500 text-sm">No upcoming events in the next 30 days.</div>
+        @endforelse
     </div>
     @endif
 
@@ -156,7 +226,7 @@
                         <p class="text-xs" :class="dark ? 'text-gray-300' : 'text-gray-700'">{{ $payment->client->name }}</p>
                         <p class="text-xs text-gray-500">{{ $payment->payment_date->format('d M Y') }}</p>
                     </div>
-                    <p class="text-xs font-medium text-green-400">Rs. {{ number_format($payment->amount) }}</p>
+                    <p class="text-xs font-medium text-green-400">{{ $currency }} {{ number_format($payment->amount) }}</p>
                 </div>
                 @empty
                 <p class="text-gray-500 text-xs">No payments yet.</p>
@@ -217,6 +287,7 @@
                 @php
                     $options = [
                         'stats'           => 'Stat Cards (Clients, Jobs, Revenue, Invoices)',
+                        'analytics'       => 'Analytics (Income/Expense, Charts, Upcoming Events)',
                         'recent_jobs'     => 'Recent Jobs Table',
                         'quick_stats'     => 'Reminders & Recent Payments',
                         'recent_activity' => 'Recent Activity Feed',
@@ -248,5 +319,52 @@
     </div>
 
 </div>
+
+{{-- ApexCharts --}}
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const el = document.querySelector("#incomeExpenseChart");
+    if (!el) return;
+
+    const isDark = document.documentElement.classList.contains('dark');
+
+    const options = {
+        chart: {
+            type: 'bar',
+            height: 280,
+            toolbar: { show: false },
+            fontFamily: 'inherit',
+        },
+        series: [
+            { name: 'Income', data: @json($analytics['chart_income']) },
+            { name: 'Expense', data: @json($analytics['chart_expense']) },
+        ],
+        xaxis: {
+            categories: @json($analytics['chart_labels']),
+            labels: { style: { colors: isDark ? '#9ca3af' : '#6b7280' } },
+        },
+        yaxis: {
+            labels: {
+                style: { colors: isDark ? '#9ca3af' : '#6b7280' },
+                formatter: (val) => 'Rs. ' + val.toLocaleString(),
+            },
+        },
+        colors: ['#16a34a', '#dc2626'],
+        plotOptions: {
+            bar: { borderRadius: 4, columnWidth: '55%' },
+        },
+        dataLabels: { enabled: false },
+        legend: { labels: { colors: isDark ? '#d1d5db' : '#374151' } },
+        grid: { borderColor: isDark ? '#252840' : '#e5e7eb' },
+        tooltip: {
+            theme: isDark ? 'dark' : 'light',
+            y: { formatter: (val) => 'Rs. ' + val.toLocaleString() },
+        },
+    };
+
+    new ApexCharts(el, options).render();
+});
+</script>
 
 @endsection
