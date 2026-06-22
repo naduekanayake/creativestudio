@@ -3,8 +3,14 @@
        :style="dark ? 'background:#13151f' : 'background:#ffffff;border-right:1px solid #e5e7eb'">
 
     {{-- Logo --}}
+    @php $studioLogo = \App\Models\Setting::logoUrl(); @endphp
     <div class="p-4" :style="dark ? 'border-bottom:1px solid #1e2130' : 'border-bottom:1px solid #e5e7eb'">
         <div class="flex items-center gap-2">
+            @if($studioLogo)
+            <div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden bg-white">
+                <img src="{{ $studioLogo }}" class="w-full h-full object-contain"/>
+            </div>
+            @else
             <div class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center flex-shrink-0">
                 <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -13,6 +19,7 @@
                           d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
                 </svg>
             </div>
+            @endif
             <div>
                 <p class="font-bold text-xs leading-tight" :class="dark ? 'text-white' : 'text-gray-900'">{{ \App\Models\Setting::get('studio_name', 'CreativeStudio') }}</p>
                 <p class="text-gray-400 text-xs">{{ \App\Models\Setting::get('studio_tagline', 'Photography & Films') }}</p>

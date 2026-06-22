@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Storage;
 
 class Setting extends Model
 {
@@ -25,5 +25,15 @@ class Setting extends Model
     public static function getAll(): array
     {
         return static::pluck('value', 'key')->toArray();
+    }
+
+    
+    public static function logoUrl(): ?string
+    {
+        $path = static::get('logo_path');
+        if ($path && Storage::disk('public')->exists($path)) {
+            return asset('storage/' . $path);
+        }
+        return null;
     }
 }

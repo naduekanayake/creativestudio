@@ -104,7 +104,7 @@ Route::middleware('auth')->group(function () {
     // ===== SUPER ADMIN ONLY (system settings) =====
     Route::middleware('role:super_admin')->group(function () {
         Route::get('/settings', [SettingController::class, 'index'])->name('settings.index');
-        Route::patch('/settings', [SettingController::class, 'update'])->name('settings.update');
+        Route::post('/settings', [SettingController::class, 'update'])->name('settings.update');
     });
 
 });
