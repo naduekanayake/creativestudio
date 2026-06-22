@@ -8,9 +8,12 @@ use App\Models\Client;
 use App\Models\Quotation;
 use App\Models\Package;
 use App\Models\Reminder;
+use App\Models\Setting;
 use App\Models\ActivityLog;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class InvoiceController extends Controller
 {
@@ -37,7 +40,6 @@ class InvoiceController extends Controller
         $packages = Package::orderBy('name')->get();
         $nextNumber = 'INV-' . date('Y') . '-' . str_pad((Invoice::count() + 1), 4, '0', STR_PAD_LEFT);
 
-        // Quotation එකකින් invoice එකක් හදනවා නම් (?quotation_id=X)
         $fromQuotation = null;
         if ($request->filled('quotation_id')) {
             $fromQuotation = Quotation::with('client')->find($request->quotation_id);
@@ -67,7 +69,6 @@ class InvoiceController extends Controller
             'items.*.unit_price' => 'required|numeric|min:0',
         ]);
 
-        // Calculate totals
         $subTotal = 0;
         foreach ($request->items as $item) {
             $subTotal += $item['qty'] * $item['unit_price'];
@@ -116,7 +117,6 @@ class InvoiceController extends Controller
             ]);
         }
 
-        // Auto reminder — due date එකට link වෙච්ච payment reminder එකක්
         $this->createPaymentReminder($invoice);
 
         ActivityLog::log('created', 'Invoice', $invoice->id, $invoice->invoice_number,
@@ -131,6 +131,66 @@ class InvoiceController extends Controller
     {
         $invoice->load('client', 'items');
         return view('invoices.show', compact('invoice'));
+    }
+
+    public function downloadPdf(Invoice $invoice)
+    {
+        $invoice->load('client', 'items');
+        $pdf = $this->generatePdf($invoice);
+        return $pdf->download($invoice->invoice_number . '.pdf');
+    }
+
+    /**
+     * Public invoice view — login නැතුව, share_token එකෙන් customer ට බලන්න.
+     */
+    public function publicView(string $token)
+    {
+        $invoice = Invoice::where('share_token', $token)->firstOrFail();
+        $invoice->load('client', 'items');
+        return view('invoices.public', compact('invoice'));
+    }
+
+    /**
+     * Public PDF download — login නැතුව.
+     */
+    public function publicPdf(string $token)
+    {
+        $invoice = Invoice::where('share_token', $token)->firstOrFail();
+        $invoice->load('client', 'items');
+        $pdf = $this->generatePdf($invoice);
+        return $pdf->download($invoice->invoice_number . '.pdf');
+    }
+
+    /**
+     * Invoice PDF එක generate කරනවා (download + public + email වලට පොදුවේ).
+     */
+    private function generatePdf(Invoice $invoice)
+    {
+        $logoData = null;
+        $logoPath = Setting::get('logo_path');
+        if ($logoPath && Storage::disk('public')->exists($logoPath)) {
+            $fullPath = Storage::disk('public')->path($logoPath);
+            $type = pathinfo($fullPath, PATHINFO_EXTENSION);
+            $contents = file_get_contents($fullPath);
+            $logoData = 'data:image/' . $type . ';base64,' . base64_encode($contents);
+        }
+
+        $data = [
+            'invoice'       => $invoice,
+            'logoData'      => $logoData,
+            'studioName'    => Setting::get('studio_name', 'Creative Studio'),
+            'studioTagline' => Setting::get('studio_tagline', 'Photography & Films'),
+            'studioAddress' => Setting::get('address', ''),
+            'studioCity'    => Setting::get('city', ''),
+            'studioPhone'   => Setting::get('phone', ''),
+            'studioEmail'   => Setting::get('email', ''),
+            'bankName'      => Setting::get('bank_name', ''),
+            'bankAccount'   => Setting::get('bank_account', ''),
+            'bankBranch'    => Setting::get('bank_branch', ''),
+            'invoiceFooter' => Setting::get('invoice_footer', ''),
+        ];
+
+        return Pdf::loadView('invoices.pdf', $data)->setPaper('a4');
     }
 
     public function edit(Invoice $invoice)
@@ -208,7 +268,6 @@ class InvoiceController extends Controller
             ]);
         }
 
-        // Due date වෙනස් / paid වුණත් — linked reminder එක update/delete වෙනවා
         $this->createPaymentReminder($invoice);
 
         ActivityLog::log('updated', 'Invoice', $invoice->id, $invoice->invoice_number,
@@ -233,7 +292,6 @@ class InvoiceController extends Controller
 
     public function destroy(Invoice $invoice)
     {
-        // මේ invoice එකේ auto reminder එකත් අයින් කරනවා
         Reminder::where('source_type', 'invoice')->where('source_id', $invoice->id)->delete();
 
         $number = $invoice->invoice_number;
@@ -247,17 +305,12 @@ class InvoiceController extends Controller
             ->with('success', 'Invoice deleted successfully!');
     }
 
-    /**
-     * Invoice due date එකම remind_date විදිහට auto payment reminder.
-     * source_type/source_id වලින් link — date වෙනස් / paid වුණොත් හරියට handle වෙනවා.
-     */
     private function createPaymentReminder(Invoice $invoice): void
     {
         $existing = Reminder::where('source_type', 'invoice')
             ->where('source_id', $invoice->id)
             ->first();
 
-        // Paid නම් / due date නැත්නම් / අතීතයේ නම් — පරණ එක තිබුණොත් අයින් කරනවා
         if ($invoice->payment_status === 'Paid'
             || !$invoice->due_date
             || Carbon::parse($invoice->due_date)->lt(Carbon::today())) {

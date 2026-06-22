@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Support\Str;
 
 class Invoice extends Model
 {
@@ -14,13 +15,23 @@ class Invoice extends Model
         'issue_date', 'due_date', 'sub_total',
         'discount_percent', 'vat_percent', 'total_amount',
         'paid_amount', 'payment_status',
-        'terms', 'payment_terms', 'status',
+        'terms', 'payment_terms', 'status', 'share_token',
     ];
 
     protected $casts = [
         'issue_date' => 'date',
         'due_date'   => 'date',
     ];
+
+    protected static function boot()
+    {
+        parent::boot();
+        static::creating(function ($invoice) {
+            if (empty($invoice->share_token)) {
+                $invoice->share_token = Str::random(40);
+            }
+        });
+    }
 
     public function client()
     {
@@ -35,6 +46,16 @@ class Invoice extends Model
     public function items()
     {
         return $this->hasMany(InvoiceItem::class);
+    }
+
+    public function getShareUrlAttribute(): string
+    {
+        // share_token නැති පරණ invoices වලට generate කරනවා
+        if (empty($this->share_token)) {
+            $this->share_token = Str::random(40);
+            $this->save();
+        }
+        return route('invoices.public', $this->share_token);
     }
 
     public function getStatusColorAttribute(): string

@@ -24,37 +24,34 @@ use App\Http\Controllers\ProfileController;
 
 Route::get('/', fn() => redirect()->route('login'));
 
+// ===== PUBLIC SHARE ROUTES (no auth — customers view via share_token) =====
+Route::get('/invoice/view/{token}', [InvoiceController::class, 'publicView'])->name('invoices.public');
+Route::get('/invoice/view/{token}/pdf', [InvoiceController::class, 'publicPdf'])->name('invoices.public-pdf');
+
 Route::middleware('auth')->group(function () {
 
     // ===== ALL ROLES (super_admin, admin, staff) =====
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::patch('/dashboard/widgets', [DashboardController::class, 'updateWidgets'])->name('dashboard.widgets');
 
-    // Clients — staff can view but not delete (delete blocked below)
     Route::resource('clients', ClientController::class);
 
-    // Jobs — operational, all roles
     Route::resource('jobs', JobController::class);
     Route::patch('/jobs/{job}/status', [JobController::class, 'updateStatus'])->name('jobs.update-status');
 
-    // Deliverables — all roles
     Route::resource('deliverables', DeliverableController::class);
     Route::patch('/deliverables/{deliverable}/status', [DeliverableController::class, 'updateStatus'])->name('deliverables.update-status');
 
-    // Calendar — all roles
     Route::get('/calendar', [CalendarController::class, 'index'])->name('calendar');
     Route::get('/calendar/events', [CalendarController::class, 'events'])->name('calendar.events');
 
-    // Reminders — all roles ('due' MUST come before resource)
     Route::get('/reminders/due', [ReminderController::class, 'due'])->name('reminders.due');
     Route::resource('reminders', ReminderController::class)->except(['show']);
     Route::patch('/reminders/{reminder}/status', [ReminderController::class, 'updateStatus'])->name('reminders.update-status');
 
-    // WhatsApp & Email sharing — all roles
     Route::get('/whatsapp', [WhatsAppController::class, 'index'])->name('whatsapp');
     Route::get('/email-sharing', [EmailSharingController::class, 'index'])->name('email-sharing');
 
-    // Search — all roles
     Route::get('/search', [SearchController::class, 'search'])->name('search');
 
     // Profile — all roles (own profile)
@@ -67,35 +64,27 @@ Route::middleware('auth')->group(function () {
     // ===== SUPER ADMIN + ADMIN ONLY (financial & management) =====
     Route::middleware('role:super_admin,admin')->group(function () {
 
-        // Packages
         Route::resource('packages', PackageController::class);
 
-        // Quotations
         Route::resource('quotations', QuotationController::class);
         Route::patch('/quotations/{quotation}/status', [QuotationController::class, 'updateStatus'])->name('quotations.update-status');
 
-        // Invoices
         Route::resource('invoices', InvoiceController::class);
+        Route::get('/invoices/{invoice}/pdf', [InvoiceController::class, 'downloadPdf'])->name('invoices.pdf');
         Route::patch('/invoices/{invoice}/status', [InvoiceController::class, 'updateStatus'])->name('invoices.update-status');
 
-        // Payments
         Route::resource('payments', PaymentController::class);
 
-        // Expenses
         Route::resource('expenses', ExpenseController::class);
 
-        // Contracts
         Route::resource('contracts', ContractController::class);
         Route::patch('/contracts/{contract}/status', [ContractController::class, 'updateStatus'])->name('contracts.update-status');
 
-        // Reports
         Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
         Route::get('/reports/financial', [ReportController::class, 'financial'])->name('reports.financial');
 
-        // Activity Log
         Route::get('/activity-log', [ActivityLogController::class, 'index'])->name('activity-log');
 
-        // User Management
         Route::resource('users', UserController::class)->except(['show']);
         Route::patch('/users/{user}/toggle-status', [UserController::class, 'toggleStatus'])->name('users.toggle-status');
     });
