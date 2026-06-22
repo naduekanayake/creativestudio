@@ -4,6 +4,16 @@
 
 @section('content')
 
+@php
+    $studioLogo = \App\Models\Setting::logoUrl();
+    $studioName = \App\Models\Setting::get('studio_name', 'Creative Studio');
+    $studioTagline = \App\Models\Setting::get('studio_tagline', 'Photography & Films');
+    $studioAddress = \App\Models\Setting::get('address', 'No. 45, Park Road');
+    $studioCity = \App\Models\Setting::get('city', 'Colombo 05');
+    $studioPhone = \App\Models\Setting::get('phone', '077 123 4567');
+    $studioEmail = \App\Models\Setting::get('email', 'info@creativestudio.lk');
+@endphp
+
 {{-- Header --}}
 <div class="no-print flex items-center justify-between mb-6">
     <div class="flex items-center gap-3">
@@ -91,15 +101,21 @@
     {{-- Document Header --}}
     <div class="flex items-center justify-between mb-6 pb-6" style="border-bottom:2px solid #7C3AED">
         <div class="flex items-center gap-3">
-            <div class="w-12 h-12 bg-primary rounded-xl flex items-center justify-center">
+            @if($studioLogo)
+            <div class="w-24 h-24 rounded-xl flex items-center justify-center overflow-hidden bg-white">
+                <img src="{{ $studioLogo }}" class="w-full h-full object-contain"/>
+            </div>
+            @else
+            <div class="w-24 h-24 bg-primary rounded-xl flex items-center justify-center">
                 <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
                 </svg>
             </div>
+            @endif
             <div>
-                <h2 class="text-xl font-bold" :class="dark ? 'text-white' : 'text-gray-900'">CREATIVE STUDIO</h2>
-                <p class="text-gray-400 text-xs tracking-wide">PHOTOGRAPHY & FILMS</p>
+                <h2 class="text-xl font-bold" :class="dark ? 'text-white' : 'text-gray-900'">{{ strtoupper($studioName) }}</h2>
+                <p class="text-gray-400 text-xs tracking-wide">{{ strtoupper($studioTagline) }}</p>
             </div>
         </div>
         <div class="text-right">
@@ -112,11 +128,19 @@
     <div class="grid grid-cols-2 gap-8 mb-6">
         <div>
             <p class="text-primary text-xs font-semibold mb-2">FROM</p>
-            <p class="font-bold" :class="dark ? 'text-white' : 'text-gray-900'">Creative Studio</p>
-            <p class="text-gray-400 text-sm">No. 45, Park Road,</p>
-            <p class="text-gray-400 text-sm">Colombo 05, Sri Lanka</p>
-            <p class="text-gray-400 text-sm mt-2">077 123 4567</p>
-            <p class="text-gray-400 text-sm">info@creativestudio.lk</p>
+            <p class="font-bold" :class="dark ? 'text-white' : 'text-gray-900'">{{ $studioName }}</p>
+            @if($studioAddress)
+            <p class="text-gray-400 text-sm">{{ $studioAddress }}</p>
+            @endif
+            @if($studioCity)
+            <p class="text-gray-400 text-sm">{{ $studioCity }}</p>
+            @endif
+            @if($studioPhone)
+            <p class="text-gray-400 text-sm mt-2">{{ $studioPhone }}</p>
+            @endif
+            @if($studioEmail)
+            <p class="text-gray-400 text-sm">{{ $studioEmail }}</p>
+            @endif
         </div>
         <div>
             <p class="text-primary text-xs font-semibold mb-2">TO</p>
@@ -225,10 +249,6 @@
             <div class="mt-6 text-right">
                 <p class="font-script text-2xl text-primary mb-1" style="font-family: cursive;">Thank you!</p>
                 <p class="text-gray-400 text-xs">We look forward to capturing your special moments.</p>
-                <div class="mt-6">
-                    <p class="font-semibold text-sm" :class="dark ? 'text-white' : 'text-gray-900'">John Perera</p>
-                    <p class="text-gray-400 text-xs">Creative Director</p>
-                </div>
             </div>
         </div>
     </div>
