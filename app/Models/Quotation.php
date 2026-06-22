@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Support\Str;
 
 class Quotation extends Model
 {
@@ -13,13 +14,23 @@ class Quotation extends Model
         'quotation_number', 'client_id', 'project_event',
         'issue_date', 'valid_until', 'sub_total',
         'discount_percent', 'vat_percent', 'total_amount',
-        'terms', 'payment_terms', 'status',
+        'terms', 'payment_terms', 'status', 'share_token',
     ];
 
     protected $casts = [
         'issue_date'  => 'date',
         'valid_until' => 'date',
     ];
+
+    protected static function boot()
+    {
+        parent::boot();
+        static::creating(function ($quotation) {
+            if (empty($quotation->share_token)) {
+                $quotation->share_token = Str::random(40);
+            }
+        });
+    }
 
     public function client()
     {
@@ -29,6 +40,15 @@ class Quotation extends Model
     public function items()
     {
         return $this->hasMany(QuotationItem::class);
+    }
+
+    public function getShareUrlAttribute(): string
+    {
+        if (empty($this->share_token)) {
+            $this->share_token = Str::random(40);
+            $this->save();
+        }
+        return route('quotations.public', $this->share_token);
     }
 
     public function getStatusColorAttribute(): string

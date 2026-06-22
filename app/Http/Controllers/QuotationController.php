@@ -6,8 +6,11 @@ use App\Models\Quotation;
 use App\Models\QuotationItem;
 use App\Models\Client;
 use App\Models\Package;
+use App\Models\Setting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class QuotationController extends Controller
 {
@@ -99,6 +102,63 @@ class QuotationController extends Controller
     {
         $quotation->load('client', 'items');
         return view('quotations.show', compact('quotation'));
+    }
+
+    public function downloadPdf(Quotation $quotation)
+    {
+        $quotation->load('client', 'items');
+        $pdf = $this->generatePdf($quotation);
+        return $pdf->download($quotation->quotation_number . '.pdf');
+    }
+
+    /**
+     * Public quotation view — login නැතුව, share_token එකෙන් customer ට බලන්න.
+     */
+    public function publicView(string $token)
+    {
+        $quotation = Quotation::where('share_token', $token)->firstOrFail();
+        $quotation->load('client', 'items');
+        return view('quotations.public', compact('quotation'));
+    }
+
+    /**
+     * Public PDF download — login නැතුව.
+     */
+    public function publicPdf(string $token)
+    {
+        $quotation = Quotation::where('share_token', $token)->firstOrFail();
+        $quotation->load('client', 'items');
+        $pdf = $this->generatePdf($quotation);
+        return $pdf->download($quotation->quotation_number . '.pdf');
+    }
+
+    /**
+     * Quotation PDF එක generate කරනවා (download + public + email වලට පොදුවේ).
+     */
+    private function generatePdf(Quotation $quotation)
+    {
+        $logoData = null;
+        $logoPath = Setting::get('logo_path');
+        if ($logoPath && Storage::disk('public')->exists($logoPath)) {
+            $fullPath = Storage::disk('public')->path($logoPath);
+            $type = pathinfo($fullPath, PATHINFO_EXTENSION);
+            $contents = file_get_contents($fullPath);
+            $logoData = 'data:image/' . $type . ';base64,' . base64_encode($contents);
+        }
+
+        $data = [
+            'quotation'     => $quotation,
+            'logoData'      => $logoData,
+            'studioName'    => Setting::get('studio_name', 'Creative Studio'),
+            'studioTagline' => Setting::get('studio_tagline', 'Photography & Films'),
+            'studioAddress' => Setting::get('address', ''),
+            'studioCity'    => Setting::get('city', ''),
+            'studioPhone'   => Setting::get('phone', ''),
+            'studioEmail'   => Setting::get('email', ''),
+            'invoiceFooter' => Setting::get('invoice_footer', ''),
+        ];
+
+        return Pdf::loadView('quotations.pdf', $data)->setPaper('a4');
     }
 
     public function edit(Quotation $quotation)

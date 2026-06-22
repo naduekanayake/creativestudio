@@ -27,6 +27,8 @@ Route::get('/', fn() => redirect()->route('login'));
 // ===== PUBLIC SHARE ROUTES (no auth — customers view via share_token) =====
 Route::get('/invoice/view/{token}', [InvoiceController::class, 'publicView'])->name('invoices.public');
 Route::get('/invoice/view/{token}/pdf', [InvoiceController::class, 'publicPdf'])->name('invoices.public-pdf');
+Route::get('/quotation/view/{token}', [QuotationController::class, 'publicView'])->name('quotations.public');
+Route::get('/quotation/view/{token}/pdf', [QuotationController::class, 'publicPdf'])->name('quotations.public-pdf');
 
 Route::middleware('auth')->group(function () {
 
@@ -67,6 +69,7 @@ Route::middleware('auth')->group(function () {
         Route::resource('packages', PackageController::class);
 
         Route::resource('quotations', QuotationController::class);
+        Route::get('/quotations/{quotation}/pdf', [QuotationController::class, 'downloadPdf'])->name('quotations.pdf');
         Route::patch('/quotations/{quotation}/status', [QuotationController::class, 'updateStatus'])->name('quotations.update-status');
 
         Route::resource('invoices', InvoiceController::class);
