@@ -19,6 +19,12 @@ class InvoiceController extends Controller
 {
     public function index()
     {
+        // Auto-overdue: due_date පහු වුණ unpaid/partial invoices → Overdue
+        Invoice::whereIn('payment_status', ['Unpaid', 'Partial'])
+            ->whereNotIn('status', ['Cancelled', 'Paid'])
+            ->whereDate('due_date', '<', today())
+            ->update(['status' => 'Overdue']);
+
         $invoices = Invoice::with('client')->latest()->paginate(15);
         $stats = [
             'total'     => Invoice::count(),
@@ -129,6 +135,15 @@ class InvoiceController extends Controller
 
     public function show(Invoice $invoice)
     {
+        // Auto-overdue: මේ invoice එක due_date පහු වෙලා unpaid නම්
+        if (in_array($invoice->payment_status, ['Unpaid', 'Partial'])
+            && !in_array($invoice->status, ['Cancelled', 'Paid'])
+            && $invoice->due_date
+            && Carbon::parse($invoice->due_date)->lt(today())
+            && $invoice->status !== 'Overdue') {
+            $invoice->update(['status' => 'Overdue']);
+        }
+
         $invoice->load('client', 'items');
         return view('invoices.show', compact('invoice'));
     }

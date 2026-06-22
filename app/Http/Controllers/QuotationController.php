@@ -10,12 +10,18 @@ use App\Models\Setting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Carbon\Carbon;
 use Barryvdh\DomPDF\Facade\Pdf;
 
 class QuotationController extends Controller
 {
     public function index()
     {
+        // Auto-expire: valid_until පහු වුණ Draft/Sent quotations → Expired
+        Quotation::whereIn('status', ['Draft', 'Sent'])
+            ->whereDate('valid_until', '<', today())
+            ->update(['status' => 'Expired']);
+
         $quotations = Quotation::with('client')->latest()->paginate(10);
 
         $stats = [
@@ -100,6 +106,13 @@ class QuotationController extends Controller
 
     public function show(Quotation $quotation)
     {
+        // Auto-expire: මේ quotation එක valid_until පහු වෙලා Draft/Sent නම්
+        if (in_array($quotation->status, ['Draft', 'Sent'])
+            && $quotation->valid_until
+            && Carbon::parse($quotation->valid_until)->lt(today())) {
+            $quotation->update(['status' => 'Expired']);
+        }
+
         $quotation->load('client', 'items');
         return view('quotations.show', compact('quotation'));
     }
