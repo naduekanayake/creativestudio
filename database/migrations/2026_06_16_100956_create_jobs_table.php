@@ -4,28 +4,54 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration {
-    public function up(): void {
-        Schema::create('jobs', function (Blueprint $table) {
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('queue_jobs', function (Blueprint $table) {
             $table->id();
-            $table->string('job_number')->unique();
-            $table->string('title');
-            $table->foreignId('client_id')->constrained()->onDelete('cascade');
-            $table->foreignId('quotation_id')->nullable()->constrained()->onDelete('set null');
-            $table->enum('type', ['Wedding', 'Portrait', 'Commercial', 'Event', 'Product', 'Other'])->default('Wedding');
-            $table->date('event_date')->nullable();
-            $table->string('event_location')->nullable();
-            $table->text('description')->nullable();
-            $table->enum('status', ['Inquiry', 'Confirmed', 'In Progress', 'Editing', 'Delivered', 'Completed', 'Cancelled'])->default('Inquiry');
-            $table->enum('priority', ['Low', 'Medium', 'High'])->default('Medium');
-            $table->decimal('budget', 12, 2)->nullable();
-            $table->date('delivery_date')->nullable();
-            $table->text('notes')->nullable();
-            $table->timestamps();
+            $table->string('queue')->index();
+            $table->longText('payload');
+            $table->unsignedTinyInteger('attempts');
+            $table->unsignedInteger('reserved_at')->nullable();
+            $table->unsignedInteger('available_at');
+            $table->unsignedInteger('created_at');
+        });
+
+        Schema::create('job_batches', function (Blueprint $table) {
+            $table->string('id')->primary();
+            $table->string('name');
+            $table->integer('total_jobs');
+            $table->integer('pending_jobs');
+            $table->integer('failed_jobs');
+            $table->longText('failed_job_ids');
+            $table->mediumText('options')->nullable();
+            $table->integer('cancelled_at')->nullable();
+            $table->integer('created_at');
+            $table->integer('finished_at')->nullable();
+        });
+
+        Schema::create('failed_jobs', function (Blueprint $table) {
+            $table->id();
+            $table->string('uuid')->unique();
+            $table->text('connection');
+            $table->text('queue');
+            $table->longText('payload');
+            $table->longText('exception');
+            $table->timestamp('failed_at')->useCurrent();
         });
     }
 
-    public function down(): void {
-        Schema::dropIfExists('jobs');
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('queue_jobs');
+        Schema::dropIfExists('job_batches');
+        Schema::dropIfExists('failed_jobs');
     }
 };
