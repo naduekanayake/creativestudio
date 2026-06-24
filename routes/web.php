@@ -69,11 +69,13 @@ Route::middleware('auth')->group(function () {
         Route::resource('packages', PackageController::class);
 
         Route::resource('quotations', QuotationController::class);
-        Route::get('/quotations/{quotation}/pdf', [QuotationController::class, 'downloadPdf'])->name('quotations.pdf');
+	Route::get('/quotations/{quotation}/pdf', [QuotationController::class, 'downloadPdf'])->name('quotations.pdf');
+       Route::post('/quotations/{quotation}/email', [QuotationController::class, 'sendEmail'])->name('quotations.email');
         Route::patch('/quotations/{quotation}/status', [QuotationController::class, 'updateStatus'])->name('quotations.update-status');
 
         Route::resource('invoices', InvoiceController::class);
-        Route::get('/invoices/{invoice}/pdf', [InvoiceController::class, 'downloadPdf'])->name('invoices.pdf');
+	Route::get('/invoices/{invoice}/pdf', [InvoiceController::class, 'downloadPdf'])->name('invoices.pdf');		
+       Route::post('/invoices/{invoice}/email', [InvoiceController::class, 'sendEmail'])->name('invoices.email');
         Route::patch('/invoices/{invoice}/status', [InvoiceController::class, 'updateStatus'])->name('invoices.update-status');
 
         Route::resource('payments', PaymentController::class);

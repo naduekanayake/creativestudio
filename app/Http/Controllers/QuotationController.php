@@ -260,4 +260,39 @@ class QuotationController extends Controller
         return redirect()->route('quotations.index')
             ->with('success', 'Quotation deleted successfully!');
     }
+	public function sendEmail(Quotation $quotation)
+    {
+        $quotation->load('client', 'items');
+
+        if (empty($quotation->client->email)) {
+            return back()->with('error', 'Client has no email address. Add one in the client profile first.');
+        }
+
+        $pdf = $this->generatePdf($quotation);
+        $studioName = Setting::get('studio_name', 'Creative Studio');
+
+        $lines = [
+            'Please find attached your quotation ' . $quotation->quotation_number . '.',
+            'Total Amount: Rs. ' . number_format($quotation->total_amount, 2),
+            'Valid Until: ' . ($quotation->valid_until ? $quotation->valid_until->format('M d, Y') : 'N/A'),
+        ];
+
+        try {
+            \Illuminate\Support\Facades\Mail::to($quotation->client->email)->send(
+                new \App\Mail\DocumentMail(
+                    'Quotation',
+                    $quotation->quotation_number,
+                    $quotation->client->name,
+                    $studioName,
+                    $lines,
+                    $pdf->output(),
+                    $quotation->quotation_number . '.pdf'
+                )
+            );
+        } catch (\Exception $e) {
+            return back()->with('error', 'Email failed: ' . $e->getMessage());
+        }
+
+        return back()->with('success', 'Quotation emailed to ' . $quotation->client->email);
+    }
 }

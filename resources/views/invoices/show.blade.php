@@ -63,6 +63,17 @@
             </svg>
             PDF
         </a>
+		<form method="POST" action="{{ route('invoices.email', $invoice) }}" class="inline"
+              onsubmit="return confirm('Send this invoice to {{ $invoice->client->email ?? 'the client' }}?')">
+            @csrf
+            <button type="submit"
+                    class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                </svg>
+                Send Email
+            </button>
+        </form>
     </div>
 </div>
 
@@ -70,6 +81,12 @@
 @if(session('success'))
 <div class="no-print bg-green-500/20 border border-green-500/50 text-green-400 px-4 py-3 rounded-lg mb-4 text-sm">
     {{ session('success') }}
+</div>
+@endif
+
+@if(session('error'))
+<div class="bg-red-500/20 border border-red-500/50 text-red-400 px-4 py-3 rounded-lg mb-4 text-sm">
+    {{ session('error') }}
 </div>
 @endif
 

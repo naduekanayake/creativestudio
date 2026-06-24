@@ -354,4 +354,45 @@ class InvoiceController extends Controller
             Reminder::create($data);
         }
     }
+	public function sendEmail(Invoice $invoice)
+    {
+        $invoice->load('client', 'items');
+
+        if (empty($invoice->client->email)) {
+            return back()->with('error', 'Client has no email address. Add one in the client profile first.');
+        }
+
+        $pdf = $this->generatePdf($invoice);
+        $studioName = Setting::get('studio_name', 'Creative Studio');
+
+        $lines = [
+            'Please find attached your invoice ' . $invoice->invoice_number . '.',
+            'Total Amount: Rs. ' . number_format($invoice->total_amount, 2),
+            'Balance Due: Rs. ' . number_format($invoice->total_amount - $invoice->paid_amount, 2),
+            'Due Date: ' . ($invoice->due_date ? $invoice->due_date->format('M d, Y') : 'N/A'),
+        ];
+
+        try {
+            \Illuminate\Support\Facades\Mail::to($invoice->client->email)->send(
+                new \App\Mail\DocumentMail(
+                    'Invoice',
+                    $invoice->invoice_number,
+                    $invoice->client->name,
+                    $studioName,
+                    $lines,
+                    $pdf->output(),
+                    $invoice->invoice_number . '.pdf'
+                )
+            );
+        } catch (\Exception $e) {
+            return back()->with('error', 'Email failed: ' . $e->getMessage());
+        }
+
+        ActivityLog::log('emailed', 'Invoice', $invoice->id, $invoice->invoice_number,
+            'Invoice emailed to ' . $invoice->client->email, 'mail', 'blue');
+
+        return back()->with('success', 'Invoice emailed to ' . $invoice->client->email);
+    }
 }
+
+
