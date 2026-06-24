@@ -159,12 +159,17 @@
                     </div>
                 </div>
 
-                {{-- Remember --}}
+                {{-- Remember + Forgot --}}
                 <div class="flex items-center justify-between mb-6">
                     <label class="flex items-center gap-2 cursor-pointer">
                         <input type="checkbox" name="remember" class="rounded" style="accent-color:#3b82f6"/>
                         <span class="text-gray-400 text-sm">Remember me</span>
                     </label>
+                    @if (Route::has('password.request'))
+                    <a href="{{ route('password.request') }}" class="text-sm text-primary hover:underline">
+                        Forgot password?
+                    </a>
+                    @endif
                 </div>
 
                 {{-- Submit --}}
