@@ -99,6 +99,8 @@ Route::middleware('auth')->group(function () {
     Route::middleware('role:super_admin')->group(function () {
         Route::get('/settings', [SettingController::class, 'index'])->name('settings.index');
         Route::post('/settings', [SettingController::class, 'update'])->name('settings.update');
+	Route::get('/backup/download', [DashboardController::class, 'downloadBackup'])->name('backup.download');
+        Route::post('/backup/run', [DashboardController::class, 'runBackup'])->name('backup.run');
     });
 
 });

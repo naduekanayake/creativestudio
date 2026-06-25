@@ -38,6 +38,51 @@
     </div>
     @endif
 
+	@if(session('error'))
+    <div class="bg-red-500/20 border border-red-500/50 text-red-400 px-4 py-3 rounded-lg mb-4 text-sm">
+        {{ session('error') }}
+    </div>
+    @endif
+
+    {{-- Backup (super_admin only) --}}
+    @if(auth()->user()->isSuperAdmin())
+    <div class="rounded-xl p-4 mb-6 flex items-center justify-between"
+         :style="dark ? 'background:#1a1d2e;border:1px solid #252840' : 'background:#fff;border:1px solid #e5e7eb'">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-teal-500/20 rounded-lg flex items-center justify-center">
+                <svg class="w-5 h-5 text-teal-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2 1.5 3 4 3h8c2.5 0 4-1 4-3V7M4 7c0-2 1.5-3 4-3h8c2.5 0 4 1 4 3M4 7c0 2 1.5 3 4 3h8c2.5 0 4-1 4-3"/>
+                </svg>
+            </div>
+            <div>
+                <h3 class="font-semibold text-sm" :class="dark ? 'text-white' : 'text-gray-900'">Data Backup</h3>
+                <p class="text-xs" :class="dark ? 'text-gray-400' : 'text-gray-500'">Auto-backup runs daily. Create or download manually anytime.</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-2">
+            <form method="POST" action="{{ route('backup.run') }}" class="inline"
+                  onsubmit="return confirm('Create a new backup now?')">
+                @csrf
+                <button type="submit"
+                        class="text-sm font-medium px-4 py-2 rounded-lg transition-colors flex items-center gap-2"
+                        :class="dark ? 'bg-dark-700 hover:bg-dark-600 text-white' : 'bg-gray-100 hover:bg-gray-200 text-gray-700'">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                    </svg>
+                    Create Backup
+                </button>
+            </form>
+            <a href="{{ route('backup.download') }}"
+               class="bg-teal-600 hover:bg-teal-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m6 5v2a2 2 0 01-2 2H5a2 2 0 01-2-2v-2"/>
+                </svg>
+                Download Backup
+            </a>
+        </div>
+    </div>
+    @endif
+
     {{-- Stats --}}
     @if($show('stats'))
     <div class="grid grid-cols-4 gap-4 mb-6">

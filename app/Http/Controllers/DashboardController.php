@@ -110,5 +110,42 @@ class DashboardController extends Controller
         $user->update(['dashboard_widgets' => $clean]);
 
         return back()->with('success', 'Dashboard layout saved!');
+   }
+    public function downloadBackup()
+    {
+        $backupDir = '/home/wwwaxora/backups';
+
+        if (!is_dir($backupDir)) {
+            return back()->with('error', 'No backups found yet.');
+        }
+
+        $files = glob($backupDir . '/studio_backup_*.zip');
+        if (empty($files)) {
+            return back()->with('error', 'No backup files found. Create one first.');
+        }
+
+    
+        usort($files, fn($a, $b) => filemtime($b) - filemtime($a));
+        $latest = $files[0];
+
+        return response()->download($latest, basename($latest));
+    }
+
+  
+    public function runBackup()
+    {
+        $script = '/home/wwwaxora/backup-studio.sh';
+
+        if (!file_exists($script)) {
+            return back()->with('error', 'Backup script not found on server.');
+        }
+
+        exec('/bin/bash ' . escapeshellarg($script) . ' 2>&1', $output, $code);
+
+        if ($code !== 0) {
+            return back()->with('error', 'Backup failed. Please try again or contact support.');
+        }
+
+        return back()->with('success', 'New backup created successfully! Click "Download Backup" to save it.');
     }
 }
