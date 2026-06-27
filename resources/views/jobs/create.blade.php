@@ -42,7 +42,7 @@
             </div>
 
             {{-- Client & Type --}}
-            <div class="grid grid-cols-2 gap-4 mb-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div>
                     <label class="text-gray-400 text-xs mb-1 block">Client *</label>
                     <select name="client_id" required
@@ -85,7 +85,7 @@
             </div>
 
             {{-- Event Date & Location --}}
-            <div class="grid grid-cols-2 gap-4 mb-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div>
                     <label class="text-gray-400 text-xs mb-1 block">Event Date</label>
                     <input type="date" name="event_date"
@@ -102,7 +102,7 @@
             </div>
 
             {{-- Status, Priority & Budget --}}
-            <div class="grid grid-cols-3 gap-4 mb-4">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                 <div>
                     <label class="text-gray-400 text-xs mb-1 block">Status *</label>
                     <select name="status" required
