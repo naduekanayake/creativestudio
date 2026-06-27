@@ -1,5 +1,11 @@
-<aside class="w-44 flex flex-col flex-shrink-0 h-full"
+<aside class="w-44 flex flex-col flex-shrink-0 h-full fixed inset-y-0 left-0 z-30 lg:relative lg:z-auto"
        x-show="sidebarOpen"
+       x-transition:enter="transition ease-out duration-200"
+       x-transition:enter-start="-translate-x-full"
+       x-transition:enter-end="translate-x-0"
+       x-transition:leave="transition ease-in duration-150"
+       x-transition:leave-start="translate-x-0"
+       x-transition:leave-end="-translate-x-full"
        :style="dark ? 'background:#13151f' : 'background:#ffffff;border-right:1px solid #e5e7eb'">
 
     {{-- Logo --}}

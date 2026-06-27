@@ -29,7 +29,7 @@
 @endif
 
 {{-- Stat Cards --}}
-<div class="grid grid-cols-4 gap-4 mb-6">
+<div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
     <div class="rounded-xl p-4" :style="dark ? 'background:#1a1d2e;border:1px solid #252840' : 'background:#fff;border:1px solid #e5e7eb'">
         <div class="w-9 h-9 bg-purple-500/20 rounded-lg flex items-center justify-center mb-3">
             <svg class="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -82,7 +82,8 @@
         </div>
     </div>
 
-    <table class="w-full">
+    <div class="overflow-x-auto">
+<table class="w-full min-w-[640px]">
         <thead>
             <tr class="text-gray-500 text-xs" :style="dark ? 'border-bottom:1px solid #252840' : 'border-bottom:1px solid #e5e7eb'">
                 <th class="text-left px-4 py-3">PACKAGE NAME</th>
@@ -174,6 +175,7 @@
             @endforelse
         </tbody>
     </table>
+</div>
 
     {{-- No search results --}}
     <div x-show="search.length > 0 && visibleCount() === 0" class="px-4 py-8 text-center text-gray-500 text-sm">

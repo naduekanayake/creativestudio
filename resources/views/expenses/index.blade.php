@@ -94,7 +94,8 @@
         <div class="p-4" :style="dark ? 'border-bottom:1px solid #252840' : 'border-bottom:1px solid #e5e7eb'">
             <h3 class="font-semibold" :class="dark ? 'text-white' : 'text-gray-900'">All Expenses</h3>
         </div>
-        <table class="w-full">
+        <div class="overflow-x-auto">
+<table class="w-full min-w-[640px]">
             <thead>
                 <tr class="text-gray-500 text-xs" :style="dark ? 'border-bottom:1px solid #252840' : 'border-bottom:1px solid #e5e7eb'">
                     <th class="text-left px-4 py-3">TITLE</th>
@@ -159,6 +160,7 @@
                 @endforelse
             </tbody>
         </table>
+</div>
         @if($expenses->hasPages())
         <div class="px-4 py-3" :style="dark ? 'border-top:1px solid #252840' : 'border-top:1px solid #e5e7eb'">
             {{ $expenses->links() }}

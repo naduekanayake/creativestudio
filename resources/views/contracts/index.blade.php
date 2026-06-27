@@ -67,7 +67,8 @@
 
 {{-- Contracts Table --}}
 <div class="rounded-xl" :style="dark ? 'background:#1a1d2e;border:1px solid #252840' : 'background:#fff;border:1px solid #e5e7eb'">
-    <table class="w-full">
+    <div class="overflow-x-auto">
+<table class="w-full min-w-[640px]">
         <thead>
             <tr class="text-gray-500 text-xs" :style="dark ? 'border-bottom:1px solid #252840' : 'border-bottom:1px solid #e5e7eb'">
                 <th class="text-left px-4 py-3">CONTRACT</th>
@@ -126,6 +127,7 @@
             @endforelse
         </tbody>
     </table>
+</div>
     @if($contracts->hasPages())
     <div class="px-4 py-3" :style="dark ? 'border-top:1px solid #252840' : 'border-top:1px solid #e5e7eb'">
         {{ $contracts->links() }}

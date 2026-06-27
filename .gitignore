@@ -25,3 +25,5 @@ Thumbs.db
 .env.save
 .env.save.1
 composer.phar
+*.save
+*.save.*

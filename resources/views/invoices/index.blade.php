@@ -75,7 +75,8 @@
                :style="dark ? 'background:#252840;color:#d1d5db;border:1px solid #2d3154' : 'background:#f9fafb;color:#111827;border:1px solid #e5e7eb'"/>
     </div>
 
-    <table class="w-full">
+    <div class="overflow-x-auto">
+    <table class="w-full min-w-[640px]">
         <thead>
             <tr class="text-gray-500 text-xs" :style="dark ? 'border-bottom:1px solid #252840' : 'border-bottom:1px solid #e5e7eb'">
                 <th class="text-left px-4 py-3">INVOICE</th>
@@ -158,6 +159,7 @@
             @endforelse
         </tbody>
     </table>
+    </div>
 
     @if($invoices->hasPages())
     <div class="px-4 py-3" :style="dark ? 'border-top:1px solid #252840' : 'border-top:1px solid #e5e7eb'">

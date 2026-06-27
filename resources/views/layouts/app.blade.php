@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" x-data="{ dark: localStorage.getItem('dark') === 'true', sidebarOpen: true }"
+<html lang="en" x-data="{ dark: localStorage.getItem('dark') === 'true', sidebarOpen: window.innerWidth > 1024 }"
       x-init="$watch('dark', val => localStorage.setItem('dark', val))"
       :class="dark ? 'dark' : ''">
 <head>
@@ -60,6 +60,12 @@
 
     {{-- Sidebar --}}
     @include('layouts.sidebar')
+
+   {{-- Mobile backdrop (sidebar open වෙද්දී, phone එකේ විතරක්) --}}
+    <div x-show="sidebarOpen" @click="sidebarOpen = false"
+         class="fixed inset-0 bg-black/50 z-20 lg:hidden"
+         x-transition.opacity
+         style="display:none"></div>
 
     {{-- Main Content --}}
     <div class="flex-1 flex flex-col overflow-hidden">
