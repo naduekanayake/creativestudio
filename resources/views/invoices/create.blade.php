@@ -4,10 +4,10 @@
 
 @section('content')
 
-<div x-data="invoiceForm()" class="grid grid-cols-3 gap-4">
+<div x-data="invoiceForm()" class="grid grid-cols-1 lg:grid-cols-3 gap-4">
 
     {{-- LEFT: FORM --}}
-    <div class="col-span-2 space-y-4">
+    <div class="lg:col-span-2 space-y-4">
 
         {{-- Header --}}
         <div class="flex items-center justify-between mb-2">
@@ -32,11 +32,11 @@
         </div>
 
         {{-- Step Indicator --}}
-        <div class="flex items-center gap-2 mb-4">
+        <div class="flex items-center gap-2 mb-4 overflow-x-auto pb-2">
             <template x-for="(label, i) in ['Client & Details', 'Services & Items', 'Payment Info', 'Review & Send']" :key="i">
-                <div class="flex items-center gap-2" :class="i > 0 ? 'flex-1' : ''">
+                <div class="flex items-center gap-2 flex-shrink-0">
                     <div class="flex items-center gap-2" x-show="i > 0">
-                        <div class="flex-1 h-px" :style="dark ? 'background:#252840' : 'background:#e5e7eb'"></div>
+                        <div class="w-6 h-px" :style="dark ? 'background:#252840' : 'background:#e5e7eb'"></div>
                     </div>
                     <div class="flex items-center gap-2 flex-shrink-0">
                         <div class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-semibold"
@@ -57,7 +57,7 @@
         <div x-show="step === 1" class="rounded-xl p-5" :style="dark ? 'background:#1a1d2e;border:1px solid #252840' : 'background:#fff;border:1px solid #e5e7eb'">
             <h3 class="font-semibold mb-4" :class="dark ? 'text-white' : 'text-gray-900'">Client & Invoice Details</h3>
 
-            <div class="grid grid-cols-2 gap-4 mb-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div>
                     <label class="text-gray-400 text-xs mb-1 block">Client *</label>
                     <select x-model="form.client_id" @change="updateClientInfo()"
@@ -78,7 +78,7 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-3 gap-4 mb-4">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                 <div>
                     <label class="text-gray-400 text-xs mb-1 block">Invoice Number</label>
                     <input type="text" x-model="form.invoice_number" readonly
@@ -98,7 +98,7 @@
                 <div></div>
             </div>
 
-            <div class="grid grid-cols-2 gap-4 mb-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div>
                     <label class="text-gray-400 text-xs mb-1 block">Issue Date *</label>
                     <input type="date" x-model="form.issue_date"
@@ -137,7 +137,7 @@
                 </div>
             </div>
 
-            <div class="space-y-2 mb-4">
+            <div class="space-y-2 mb-4 overflow-x-auto"><div style="min-width:560px">
                 <div class="grid text-gray-500 text-xs px-2" style="grid-template-columns: 2fr 2fr 0.7fr 1fr 1fr 0.4fr; gap: 8px;">
                     <span>Item / Service</span>
                     <span>Description</span>
@@ -171,12 +171,13 @@
                 </template>
             </div>
         </div>
+</div>
 
         {{-- STEP 3: Payment Info --}}
         <div x-show="step === 3" class="rounded-xl p-5" :style="dark ? 'background:#1a1d2e;border:1px solid #252840' : 'background:#fff;border:1px solid #e5e7eb'">
             <h3 class="font-semibold mb-4" :class="dark ? 'text-white' : 'text-gray-900'">Payment Information</h3>
 
-            <div class="grid grid-cols-2 gap-4 mb-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div>
                     <label class="text-gray-400 text-xs mb-1 block">Discount (%)</label>
                     <input type="number" x-model.number="form.discount_percent" min="0" max="100" @input="calculateTotals()"
@@ -191,7 +192,7 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-2 gap-4 mb-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div>
                     <label class="text-gray-400 text-xs mb-1 block">Amount Paid (Rs.)</label>
                     <input type="number" x-model.number="form.paid_amount" min="0" @input="calculateTotals()"
