@@ -46,7 +46,7 @@
 
     {{-- Backup (super_admin only) --}}
     @if(auth()->user()->isSuperAdmin())
-    <div class="rounded-xl p-4 mb-6 flex items-center justify-between"
+    <div class="rounded-xl p-4 mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
          :style="dark ? 'background:#1a1d2e;border:1px solid #252840' : 'background:#fff;border:1px solid #e5e7eb'">
         <div class="flex items-center gap-3">
             <div class="w-10 h-10 bg-teal-500/20 rounded-lg flex items-center justify-center">
@@ -59,7 +59,7 @@
                 <p class="text-xs" :class="dark ? 'text-gray-400' : 'text-gray-500'">Auto-backup runs daily. Create or download manually anytime.</p>
             </div>
         </div>
-        <div class="flex items-center gap-2">
+       <div class="flex items-center gap-2 flex-wrap">
             <form method="POST" action="{{ route('backup.run') }}" class="inline"
                   onsubmit="return confirm('Create a new backup now?')">
                 @csrf
@@ -85,7 +85,7 @@
 
     {{-- Stats --}}
     @if($show('stats'))
-    <div class="grid grid-cols-4 gap-4 mb-6">
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <div class="rounded-xl p-4" :style="dark ? 'background:#1a1d2e;border:1px solid #252840' : 'background:#fff;border:1px solid #e5e7eb'">
             <div class="w-9 h-9 bg-blue-500/20 rounded-lg flex items-center justify-center mb-3">
                 <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -128,7 +128,7 @@
     {{-- Analytics --}}
     @if($show('analytics'))
     {{-- This Month Summary Cards --}}
-    <div class="grid grid-cols-4 gap-4 mb-4">
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
         <div class="rounded-xl p-4" :style="dark ? 'background:#1a1d2e;border:1px solid #252840' : 'background:#fff;border:1px solid #e5e7eb'">
             <p class="text-gray-400 text-xs mb-1">THIS MONTH INCOME</p>
             <p class="text-xl font-bold text-green-400">{{ $currency }} {{ number_format($analytics['month_income']) }}</p>
@@ -147,7 +147,7 @@
         </div>
     </div>
 
-    <div class="grid grid-cols-3 gap-4 mb-4">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
         {{-- Income vs Expense Chart --}}
         <div class="col-span-2 rounded-xl p-4" :style="dark ? 'background:#1a1d2e;border:1px solid #252840' : 'background:#fff;border:1px solid #e5e7eb'">
             <h3 class="font-semibold text-sm mb-4" :class="dark ? 'text-white' : 'text-gray-900'">Income vs Expense (Last 6 Months)</h3>
@@ -197,7 +197,7 @@
 
     {{-- Row 2 --}}
     @if($show('recent_jobs') || $show('quick_stats'))
-    <div class="grid grid-cols-3 gap-4 mb-4">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
 
         {{-- Recent Jobs --}}
         @if($show('recent_jobs'))
