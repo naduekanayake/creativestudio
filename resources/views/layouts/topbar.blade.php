@@ -165,7 +165,7 @@
                     </span>
                     @endif
                 </div>
-                <div class="text-left">
+                <div class="text-left hidden sm:block">
                     <p class="text-xs font-medium" :class="dark ? 'text-white' : 'text-gray-900'">
                         {{ auth()->check() ? auth()->user()->name : 'User' }}
                     </p>

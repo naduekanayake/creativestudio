@@ -97,6 +97,10 @@
         <x-nav-item href="{{ route('settings.index') }}" icon="settings" label="Settings"/>
         @endif
 
+        {{-- My Profile — all users --}}
+        <x-nav-item href="{{ route('profile.edit') }}" icon="users" label="My Profile"/>
+    </nav>
+
     </nav>
 
     {{-- User Profile --}}
