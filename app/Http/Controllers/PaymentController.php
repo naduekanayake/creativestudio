@@ -33,7 +33,7 @@ class PaymentController extends Controller
                     ->whereIn('payment_status', ['Unpaid', 'Partial'])->get();
             }
         }
-        $nextNumber = 'PAY-' . date('Y') . '-' . str_pad((Payment::count() + 1), 4, '0', STR_PAD_LEFT);
+        $nextNumber = 'PAY-' . date('Y') . '-' . str_pad((Payment::max('id') + 1), 4, '0', STR_PAD_LEFT);
         $selectedInvoiceId = $request->invoice_id ?? null;
         return view('payments.create', compact('clients', 'invoices', 'nextNumber', 'selectedInvoiceId'));
     }

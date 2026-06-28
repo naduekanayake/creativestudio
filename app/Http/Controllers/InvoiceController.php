@@ -124,7 +124,7 @@ class InvoiceController extends Controller
             ]);
         }
         if ($paidAmount > 0) {
-            $payNumber = 'PAY-' . date('Y') . '-' . str_pad((Payment::count() + 1), 4, '0', STR_PAD_LEFT);
+            $payNumber = 'PAY-' . date('Y') . '-' . str_pad((Payment::max('id') + 1), 4, '0', STR_PAD_LEFT);
             Payment::create([
                 'payment_number' => $payNumber,
                 'client_id'      => $invoice->client_id,
@@ -295,6 +295,33 @@ class InvoiceController extends Controller
                 'unit_price'  => $item['unit_price'],
                 'total'       => $item['qty'] * $item['unit_price'],
             ]);
+        }
+        $autoPayment = Payment::where('invoice_id', $invoice->id)
+            ->where('notes', 'like', 'Auto-recorded from invoice%')
+            ->first();
+
+        if ($paidAmount > 0) {
+            if ($autoPayment) {
+                $autoPayment->update([
+                    'amount'       => $paidAmount,
+                    'payment_date' => $request->issue_date ?? $autoPayment->payment_date,
+                    'status'       => 'Completed',
+                ]);
+            } else {
+                $payNumber = 'PAY-' . date('Y') . '-' . str_pad((Payment::max('id') + 1), 4, '0', STR_PAD_LEFT);
+                Payment::create([
+                    'payment_number' => $payNumber,
+                    'client_id'      => $invoice->client_id,
+                    'invoice_id'     => $invoice->id,
+                    'amount'         => $paidAmount,
+                    'method'         => 'Cash',
+                    'payment_date'   => $request->issue_date ?? now(),
+                    'notes'          => 'Auto-recorded from invoice ' . $invoice->invoice_number,
+                    'status'         => 'Completed',
+                ]);
+            }
+        } elseif ($autoPayment) {
+            $autoPayment->delete();
         }
 
         $this->createPaymentReminder($invoice);
