@@ -26,7 +26,7 @@
 @endif
 
 {{-- Stats --}}
-<div class="grid grid-cols-4 gap-4 mb-6">
+<div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
     <div class="rounded-xl p-4" :style="dark ? 'background:#1a1d2e;border:1px solid #252840' : 'background:#fff;border:1px solid #e5e7eb'">
         <div class="w-9 h-9 bg-blue-500/20 rounded-lg flex items-center justify-center mb-3">
             <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">

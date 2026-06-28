@@ -27,7 +27,7 @@
             </div>
             @endif
 
-            <div class="grid grid-cols-2 gap-4 mb-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div>
                     <label class="text-gray-400 text-xs mb-1 block">Contract Number *</label>
                     <input type="text" name="contract_number" value="{{ $nextNumber }}" required readonly
@@ -50,7 +50,7 @@
                        placeholder="e.g. Wedding Photography Agreement"/>
             </div>
 
-            <div class="grid grid-cols-2 gap-4 mb-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div>
                     <label class="text-gray-400 text-xs mb-1 block">Client *</label>
                     <select name="client_id" required
@@ -75,7 +75,7 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-2 gap-4 mb-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div>
                     <label class="text-gray-400 text-xs mb-1 block">Type *</label>
                     <select name="type" required
@@ -100,7 +100,7 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-2 gap-4 mb-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div>
                     <label class="text-gray-400 text-xs mb-1 block">Event Date</label>
                     <input type="date" name="event_date" value="{{ old('event_date') }}"
@@ -116,7 +116,7 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-2 gap-4 mb-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div>
                     <label class="text-gray-400 text-xs mb-1 block">Total Amount (Rs.) *</label>
                     <input type="number" name="total_amount" value="{{ old('total_amount') }}" min="0" step="0.01" required
