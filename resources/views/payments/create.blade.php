@@ -70,7 +70,7 @@
             </div>
 
             {{-- Amount & Method --}}
-            <div class="grid grid-cols-2 gap-4 mb-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div>
                     <label class="text-gray-400 text-xs mb-1 block">Amount (Rs.) *</label>
                     <input type="number" name="amount" x-model="amount" min="0.01" step="0.01" required
@@ -93,7 +93,7 @@
             </div>
 
             {{-- Date & Status --}}
-            <div class="grid grid-cols-2 gap-4 mb-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div>
                     <label class="text-gray-400 text-xs mb-1 block">Payment Date *</label>
                     <input type="date" name="payment_date" value="{{ date('Y-m-d') }}" required
