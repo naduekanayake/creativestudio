@@ -130,6 +130,11 @@
     .fc-toolbar {
         margin-bottom: 16px !important;
     }
+@media (max-width: 767px) {
+            .fc-toolbar { flex-direction: column; gap: 8px; }
+            .fc-toolbar-title { font-size: 1rem !important; }
+            .fc-button { padding: 4px 8px !important; font-size: 0.75rem !important; }
+        }
     /* List view styles */
     .fc-list-day-cushion {
         background: #252840 !important;
@@ -190,7 +195,7 @@ document.addEventListener('DOMContentLoaded', function() {
     var calendarEl = document.getElementById('calendar');
 
     var calendar = new FullCalendar.Calendar(calendarEl, {
-        initialView: 'dayGridMonth',
+       initialView: window.innerWidth < 768 ? 'listMonth' : 'dayGridMonth',
         headerToolbar: {
             left: 'prev,next today',
             center: 'title',
@@ -211,6 +216,7 @@ document.addEventListener('DOMContentLoaded', function() {
             info.el.title = info.event.title;
         },
         height: 'auto',
+	dayMaxEvents: 2,
         eventDisplay: 'block',
         listDayFormat: { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' },
         listDaySideFormat: false,
