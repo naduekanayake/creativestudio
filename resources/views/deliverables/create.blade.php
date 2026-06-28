@@ -33,7 +33,7 @@
             </div>
 
             {{-- Client & Type --}}
-            <div class="grid grid-cols-2 gap-4 mb-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div>
                     <label class="text-gray-400 text-xs mb-1 block">Client *</label>
                     <select name="client_id" required
@@ -87,7 +87,7 @@
             </div>
 
             {{-- Due Date & Status --}}
-            <div class="grid grid-cols-2 gap-4 mb-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div>
                     <label class="text-gray-400 text-xs mb-1 block">Due Date</label>
                     <input type="date" name="due_date"
