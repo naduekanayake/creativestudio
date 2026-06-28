@@ -18,7 +18,7 @@
 </div>
 
 {{-- Stats --}}
-<div class="grid grid-cols-3 gap-4 mb-6">
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
     <div class="rounded-xl p-4" :style="dark ? 'background:#1a1d2e;border:1px solid #252840' : 'background:#fff;border:1px solid #e5e7eb'">
         <p class="text-gray-400 text-xs mb-1">Total Invoiced</p>
         <p class="text-2xl font-bold" :class="dark ? 'text-white' : 'text-gray-900'">Rs. {{ number_format($invoiceStats['total_invoiced']) }}</p>
@@ -46,7 +46,7 @@
 </div>
 
 {{-- Charts --}}
-<div class="grid grid-cols-3 gap-4 mb-4">
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
     <div class="col-span-2 rounded-xl p-5" :style="dark ? 'background:#1a1d2e;border:1px solid #252840' : 'background:#fff;border:1px solid #e5e7eb'">
         <h3 class="font-semibold mb-4" :class="dark ? 'text-white' : 'text-gray-900'">Revenue vs Invoiced (Last 6 Months)</h3>
         <div id="financialChart"></div>
@@ -79,7 +79,7 @@
     <div class="p-4" :style="dark ? 'border-bottom:1px solid #252840' : 'border-bottom:1px solid #e5e7eb'">
         <h3 class="font-semibold" :class="dark ? 'text-white' : 'text-gray-900'">Payment History</h3>
     </div>
-    <table class="w-full">
+    <div class="overflow-x-auto"><table class="w-full min-w-[640px]">
         <thead>
             <tr class="text-gray-500 text-xs" :style="dark ? 'border-bottom:1px solid #252840' : 'border-bottom:1px solid #e5e7eb'">
                 <th class="text-left px-4 py-3">PAYMENT #</th>
@@ -108,7 +108,7 @@
             </tr>
             @endforelse
         </tbody>
-    </table>
+    </table></div>
     @if($payments->hasPages())
     <div class="px-4 py-3" :style="dark ? 'border-top:1px solid #252840' : 'border-top:1px solid #e5e7eb'">
         {{ $payments->links() }}
