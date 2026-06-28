@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Invoice;
+use App\Models\Payment;
 use App\Models\InvoiceItem;
 use App\Models\Client;
 use App\Models\Quotation;
@@ -120,6 +121,19 @@ class InvoiceController extends Controller
                 'qty'         => $item['qty'],
                 'unit_price'  => $item['unit_price'],
                 'total'       => $item['qty'] * $item['unit_price'],
+            ]);
+        }
+        if ($paidAmount > 0) {
+            $payNumber = 'PAY-' . date('Y') . '-' . str_pad((Payment::count() + 1), 4, '0', STR_PAD_LEFT);
+            Payment::create([
+                'payment_number' => $payNumber,
+                'client_id'      => $invoice->client_id,
+                'invoice_id'     => $invoice->id,
+                'amount'         => $paidAmount,
+                'method'         => 'Cash',
+                'payment_date'   => $request->issue_date ?? now(),
+                'notes'          => 'Auto-recorded from invoice ' . $invoice->invoice_number,
+                'status'         => 'Completed',
             ]);
         }
 
