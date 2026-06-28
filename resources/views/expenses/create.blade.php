@@ -29,7 +29,7 @@
                        placeholder="e.g. Camera Lens Purchase"/>
             </div>
 
-            <div class="grid grid-cols-2 gap-4 mb-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div>
                     <label class="text-gray-400 text-xs mb-1 block">Category *</label>
                     <select name="category" required
@@ -49,7 +49,7 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-2 gap-4 mb-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div>
                     <label class="text-gray-400 text-xs mb-1 block">Expense Date *</label>
                     <input type="date" name="expense_date" value="{{ old('expense_date', date('Y-m-d')) }}" required
@@ -68,7 +68,7 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-2 gap-4 mb-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div>
                     <label class="text-gray-400 text-xs mb-1 block">Receipt Number <span class="text-gray-500">(optional)</span></label>
                     <input type="text" name="receipt_number" value="{{ old('receipt_number') }}"
